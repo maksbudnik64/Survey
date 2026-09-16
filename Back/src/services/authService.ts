@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import type { PublicUser, ApiResponse } from "../types.ts";
 import { insertNewUser, selectUserByEmail } from "../repositories/userRepository.ts";
+import { errors, ok } from "../utils/helpers.ts";
 
 dotenv.config();
 
@@ -13,35 +14,31 @@ Promise<ApiResponse<{
     const check = await selectUserByEmail(email);
 
     if (!check.success) {
-        return { success: false, error: check.error };
+        return check;
     }
 
     if (check.data) {
-        return { success: false, error: "A user with this email address already exists" };
+        return errors.emailExists();
     }
 
     const password_hash = await bcrypt.hash(password, 10);
     const result = await insertNewUser(email, password_hash);
 
     if (!result.success) {
-    return { success: false, error: result.error };
+    return result;
 }
 
-if (!result.data) {
-    return { success: false, error: "User created but not found" };
-}
+if (!result.data) return errors.internal("Unexpected error");
 
     const token = generateJWT(result.data.id, email);
 
-    return {
-        success: true,
-        data: {
+    return ok({
             token: token,
             user: {
             id: result.data.id,
             email: email,
-        }}
-    };
+        }});
+    
 }
 
 export async function login(email: string, password: string): 
@@ -54,23 +51,20 @@ Promise<ApiResponse<{
     return check;
    }
 if (!check.data){
-    return {success: false, error: "Invalid email"};
+    return errors.invalidCredentials();
 }
 
 const compare = await bcrypt.compare(password, check.data.password_hash)
 if (!compare) {
-return {success: false, error: "Invalid password"}
-}
+return errors.invalidCredentials();}
 const token = generateJWT(check.data.id, email)
-return {
-        success: true,
-        data: {
+return ok({
             token: token,
             user: {
             id: check.data.id,
             email: email,
         }}
-    };
+    );
 }
 
 function generateJWT(userId: number, email: string) {

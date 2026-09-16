@@ -1,4 +1,5 @@
-import { getToken } from "../utils/auth";
+import { getToken, logout } from "../utils/auth";
+import { navigateTo } from "../utils/router";
 import type { ApiResponse } from "../types";
 
 const API_BASE = 'http://localhost:5000'
@@ -12,10 +13,18 @@ const headers: HeadersInit = {
     ...(token && { Authorization: `Bearer ${token}` })
 };
      const response = await fetch(`${API_BASE}${endpoint}`, {...options, headers});
+
      const data = await response.json();
      if (!response.ok) {
+            if (data.code === 'TOKEN_EXPIRED' || data.code === 'UNAUTHORIZED' || data.code === 'INVALID_TOKEN') {
+                logout();
+                navigateTo('/login');
+                return { success: false, error: "Session expired. Please log in again." };
+            }
+
             return { success: false, error: data.error || 'Request failed' };
         }
+
 
         return data;
     } catch (error) {

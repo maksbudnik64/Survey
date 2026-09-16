@@ -6,18 +6,22 @@ import { fail, sendResponse } from "../utils/helpers.ts";
 
 dotenv.config();
 
-export function authenticateToken(req: Request, res: Response, next: NextFunction){
+export function authenticateToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
 
-if (!token){
-    return sendResponse(res, fail('Access token required', 'INVALID_CREDENTIALS'))
-}
-try{
-const user = jwt.verify(token, process.env.JWT_SECRET || '') as PublicUser;
-req.user = user;
-next();
-} catch {
-     return sendResponse(res, fail('Invalid or expired token', 'FORBIDDEN'))
-}
+    if (!token) {
+        return sendResponse(res, fail("Access token required", "UNAUTHORIZED"));
+    }
+
+    try {
+        const user = jwt.verify(token, process.env.JWT_SECRET || "secret") as PublicUser;
+        req.user = user;
+        next();
+    } catch (error: any) {
+        if (error.name === 'TokenExpiredError') {
+            return sendResponse(res, fail("Token expired", "TOKEN_EXPIRED"));
+        }
+        return sendResponse(res, fail("Invalid token", "INVALID_TOKEN"));
+    }
 }

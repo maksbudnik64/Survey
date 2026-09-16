@@ -21,7 +21,8 @@ export function renderSurveyCard(survey: Survey): string {
     `;
 }
 
-function formatDate(date: Date): string {
+function formatDate(dateString: string): string {
+    const date = new Date(dateString);
     return date.toLocaleDateString('ru-RU', {
         day: 'numeric',
         month: 'long',

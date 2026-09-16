@@ -40,7 +40,10 @@ export type ErrorCode =
     | 'FORBIDDEN'
     | 'DB_ERROR'
     | 'VALIDATION_ERROR'
-    | 'INTERNAL_ERROR';
+    | 'INTERNAL_ERROR'
+    | 'UNAUTHORIZED'
+    | 'TOKEN_EXPIRED'
+    | 'INVALID_TOKEN';
 
 export type ApiResponse<T> =
     | { success: true; data: T | null}

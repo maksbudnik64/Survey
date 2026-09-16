@@ -27,7 +27,7 @@ export function renderRegister() {
         <input 
             type="password" 
             name="password" 
-            placeholder="Пароль (${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} символов)" 
+            placeholder="Пароль" 
             minlength="${MIN_PASSWORD_LENGTH}"
             maxlength="${MAX_PASSWORD_LENGTH}"
             required

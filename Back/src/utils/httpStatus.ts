@@ -10,6 +10,9 @@ export const HTTP_STATUS: Record<ErrorCode, number> = {
     DB_ERROR: 500,
     VALIDATION_ERROR: 400,
     INTERNAL_ERROR: 500,
+    UNAUTHORIZED: 401,
+    TOKEN_EXPIRED: 401,
+    INVALID_TOKEN: 403,
 };
 
 export function getStatus(code: ErrorCode): number {

@@ -3,10 +3,11 @@ import dotenv from "dotenv";
 import type { Request, Response, NextFunction } from "express";
 import type { PublicUser } from "../types.ts";
 import { fail, sendResponse } from "../utils/helpers.ts";
+import { selectUserById } from "../repositories/userRepository.ts";
 
 dotenv.config();
 
-export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+export async function authenticateToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
 
@@ -15,8 +16,17 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
     }
 
     try {
-        const user = jwt.verify(token, process.env.JWT_SECRET || "secret") as PublicUser;
-        req.user = user;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as PublicUser;
+
+        const result = await selectUserById(decoded.id);
+        if (!result.success) {
+            return sendResponse(res, fail("Failed to verify user", "DB_ERROR"));
+        }
+        if (!result.data) {
+            return sendResponse(res, fail("User not found", "USER_NOT_FOUND"));
+        }
+
+        req.user = { id: result.data.id, email: result.data.email };
         next();
     } catch (error: any) {
         if (error.name === 'TokenExpiredError') {

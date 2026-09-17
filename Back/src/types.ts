@@ -26,6 +26,7 @@ export type Question = TextQuestion | ChoiceQuestion;
 export interface Survey {
     id: number;
     title: string;
+    author_id: number;
     answers_counter: number;
     created_at: Date;
 }

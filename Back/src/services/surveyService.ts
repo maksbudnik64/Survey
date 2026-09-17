@@ -1,16 +1,9 @@
 import { selectUserById } from "../repositories/userRepository.ts"
-import { selectMySurveys, selectSurveys, insertNewSurvey, selectSurveyById } from "../repositories/surveyRepository.ts";
+import { selectMySurveys, selectSurveys, insertNewSurvey, selectSurveyById, updateSurvey as updateSurveyRepo } from "../repositories/surveyRepository.ts";
 import type { ApiResponse, PublicUser, Question, Survey } from "../types.ts";
-import { errors, ok } from "../utils/helpers.ts";
+import { errors, fail, ok } from "../utils/helpers.ts";
 
 export async function getMySurveys(id: number): Promise<ApiResponse<Survey[]>>{
- const result = await selectUserById(id);
- if (!result.success) {
-        return result;
-    }
- if (!result.data){
-return errors.userNotFound();
-};
 const answer = await selectMySurveys(id)
     return answer;
 }
@@ -34,4 +27,30 @@ export async function createSurvey(user: PublicUser, title: string, questions: Q
     }
 
     return ok(surveyResult.data);
+}
+
+export async function updateSurvey( user: PublicUser, survey_id: number, title: string, questions: Question[]): Promise<ApiResponse<Survey>>{
+    const surveyResult = await selectSurveyById(survey_id);
+    if (!surveyResult.success){
+        return surveyResult;
+ }
+
+    if (!surveyResult.data){
+        return errors.surveyNotFound();
+ }
+
+    if (surveyResult.data.author_id !== user.id){
+        return errors.forbidden();
+ }
+
+    const result = await updateSurveyRepo(survey_id, title, questions);
+    if (!result.success){
+        return result;
+}
+    
+    if (!result.data){
+        return errors.internal('Survey updated but not found');
+    }
+
+    return ok(result.data)
 }

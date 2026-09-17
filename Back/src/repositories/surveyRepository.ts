@@ -9,6 +9,7 @@ export async function selectMySurveys(id: number): Promise<ApiResponse<Survey[]>
         SELECT 
                 surveys.id,
                 surveys.title,
+                surveys.author_id,
                 surveys.created_at,
                 COUNT(responses.id) AS answers_counter
             FROM surveys
@@ -31,6 +32,7 @@ export async function selectSurveys(): Promise<ApiResponse<Survey[]>>{
         SELECT 
                 surveys.id,
                 surveys.title,
+                surveys.author_id,
                 surveys.created_at,
                 COUNT(responses.id) AS answers_counter
             FROM surveys
@@ -52,6 +54,7 @@ export async function selectSurveyById (id: number): Promise<ApiResponse<Survey>
         SELECT 
                 surveys.id,
                 surveys.title,
+                surveys.author_id,
                 surveys.created_at,
                 COUNT(responses.id) AS answers_counter
             FROM surveys
@@ -91,6 +94,56 @@ export async function insertNewSurvey(author_id: number, title: string, question
     } catch {
         await connection.rollback();
         return errors.dbError('Failed to insert new survey')
+    } finally {
+        connection.release();
+    }
+}
+
+export async function updateSurvey(
+    surveyId: number,
+    title: string,
+    questions: Question[]
+): Promise<ApiResponse<Survey>> {
+    const connection = await pool.getConnection();
+
+    try {
+        await connection.beginTransaction();
+
+        await connection.query(
+            `UPDATE surveys SET title = ? WHERE id = ?`,
+            [title, surveyId]
+        );
+
+        await connection.query(
+            `DELETE FROM questions WHERE survey_id = ?`,
+            [surveyId]
+        );
+
+        await connection.query(
+            `DELETE FROM responses WHERE survey_id = ?`,
+            [surveyId]
+        );
+
+        for (const q of questions) {
+            if (q.type === 'text') {
+                await connection.query(
+                    `INSERT INTO questions (survey_id, text, type, options) VALUES (?, ?, ?, ?)`,
+                    [surveyId, q.text, q.type, null]
+                );
+            } else {
+                await connection.query(
+                    `INSERT INTO questions (survey_id, text, type, options) VALUES (?, ?, ?, ?)`,
+                    [surveyId, q.text, q.type, JSON.stringify(q.options)]
+                );
+            }
+        }
+
+        await connection.commit();
+        return await selectSurveyById(surveyId);
+    } catch (error) {
+        console.error('Failed to update survey:', error);
+        await connection.rollback();
+        return errors.dbError('Failed to update survey');
     } finally {
         connection.release();
     }

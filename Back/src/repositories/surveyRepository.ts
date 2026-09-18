@@ -1,9 +1,9 @@
 import type { ResultSetHeader,  RowDataPacket } from "mysql2";
 import { pool } from "../config/db.ts";
-import type { ApiResponse, ChoiceQuestion, Question, Survey, TextQuestion } from "../types.ts";
-import { errors, fail, ok } from "../utils/helpers.ts";
+import type { Answer, ApiResponse, ChoiceQuestion, Question, Survey, TextQuestion } from "../types.ts";
+import { errors, ok } from "../utils/helpers.ts";
 
-export async function selectMySurveys(id: number): Promise<ApiResponse<Survey[]>>{
+export async function selectMySurveys(userId: number): Promise<ApiResponse<Survey[]>>{
     try{
     const [rows] = await pool.query<RowDataPacket[]>(`
         SELECT 
@@ -16,7 +16,7 @@ export async function selectMySurveys(id: number): Promise<ApiResponse<Survey[]>
             LEFT JOIN responses ON surveys.id = responses.survey_id
             WHERE surveys.author_id = ?
             GROUP BY surveys.id, surveys.title, surveys.created_at`,
-    [id]);
+    [userId]);
 if (rows.length > 0) {
             return ok(rows as Survey[]);
         }
@@ -48,7 +48,7 @@ if (rows.length > 0) {
     }
 }
 
-export async function selectSurveyById (id: number): Promise<ApiResponse<Survey>>{
+export async function selectSurveyById (surveyId: number): Promise<ApiResponse<Survey>>{
     try{
         const [rows] = await pool.query<RowDataPacket[]>(`
         SELECT 
@@ -60,7 +60,7 @@ export async function selectSurveyById (id: number): Promise<ApiResponse<Survey>
             FROM surveys
             LEFT JOIN responses ON surveys.id = responses.survey_id
             WHERE surveys.id = ?
-            GROUP BY surveys.id, surveys.title, surveys.created_at`, [id]);
+            GROUP BY surveys.id, surveys.title, surveys.created_at`, [surveyId]);
         if (rows.length > 0) {
             return ok(rows[0] as Survey);
         }
@@ -70,13 +70,13 @@ export async function selectSurveyById (id: number): Promise<ApiResponse<Survey>
     }
 }
 
-export async function selectSurveyQuestions(survey_id: number): Promise<ApiResponse<Question[]>>{
+export async function selectSurveyQuestions(surveyId: number): Promise<ApiResponse<Question[]>>{
     try {
         const [rows] = await pool.query<RowDataPacket[]>(`
             SELECT id, type, text, options
             FROM questions
             WHERE survey_id = ?
-            ORDER BY id`, [survey_id]); 
+            ORDER BY id`, [surveyId]); 
 
         if (rows.length === 0) {
             return errors.internal('Questions not found for survey');
@@ -104,14 +104,35 @@ export async function selectSurveyQuestions(survey_id: number): Promise<ApiRespo
     }
 }
 
-export async function insertNewSurvey(author_id: number, title: string, questions: Question[]): Promise<ApiResponse<number>>{
+export async function selectSurveyAnswers(surveyId: number): Promise<ApiResponse<Answer[]>>{
+    try {
+        const [rows] = await pool.query<RowDataPacket[]>(`
+            SELECT id, answers
+            FROM responses
+            WHERE survey_id = ?
+            ORDER BY id`, [surveyId]);
+        
+                const answers: Answer[] = rows.map((row: any) => {
+                    return {
+                        id: Number(row.id),
+                        answers:  row.answers ? JSON.parse(row.answers) : {},
+                    }
+                });
+
+                return ok(answers);
+            } catch {
+        return errors.dbError('Failed to get answers')
+    }
+}
+
+export async function insertNewSurvey(authorId: number, title: string, questions: Question[]): Promise<ApiResponse<number>>{
     const connection = await pool.getConnection();
 
     try {
         await connection.beginTransaction();
 
         const [surveyResult] = await connection.query<ResultSetHeader>(`
-            INSERT INTO surveys (author_id, title) VALUES (?, ?)`, [author_id, title]);
+            INSERT INTO surveys (author_id, title) VALUES (?, ?)`, [authorId, title]);
             const surveyId = surveyResult.insertId;
 
         for (const q of questions){
@@ -180,5 +201,16 @@ export async function updateSurvey(
         return errors.dbError('Failed to update survey');
     } finally {
         connection.release();
+    }
+}
+
+export async function deleteSurvey(surveyId: number): Promise<ApiResponse<null>>{
+    try{
+        const [rows] = await pool.query<ResultSetHeader>(`
+            DELETE FROM surveys
+            WHERE id = ?`, [surveyId]);
+            return ok(null);
+    } catch {
+        return errors.dbError('Failed to delete survey')
     }
 }

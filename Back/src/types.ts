@@ -37,6 +37,11 @@ export interface SurveyWithQuestions extends Survey {
     questions: Question[];
 }
 
+export interface Answer {
+    id: number;
+    answers: Record<string, string | string[]>;
+}
+
 // ----- ОТВЕТЫ API -----
 
 export type ErrorCode =

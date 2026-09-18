@@ -1,6 +1,6 @@
 import type { ResultSetHeader,  RowDataPacket } from "mysql2";
 import { pool } from "../config/db.ts";
-import type { ApiResponse, Question, Survey } from "../types.ts";
+import type { ApiResponse, ChoiceQuestion, Question, Survey, TextQuestion } from "../types.ts";
 import { errors, fail, ok } from "../utils/helpers.ts";
 
 export async function selectMySurveys(id: number): Promise<ApiResponse<Survey[]>>{
@@ -67,6 +67,40 @@ export async function selectSurveyById (id: number): Promise<ApiResponse<Survey>
         return ok(null);
     } catch {
         return errors.dbError("Failed to get survey");
+    }
+}
+
+export async function selectSurveyQuestions(survey_id: number): Promise<ApiResponse<Question[]>>{
+    try {
+        const [rows] = await pool.query<RowDataPacket[]>(`
+            SELECT id, type, text, options
+            FROM questions
+            WHERE survey_id = ?
+            ORDER BY id`, [survey_id]); 
+
+        if (rows.length === 0) {
+            return errors.internal('Questions not found for survey');
+        }
+
+        const questions: Question[] = rows.map((row: any) => {
+            if (row.type === 'text') {
+                return {
+                    id: Number(row.id),
+                    type: 'text',
+                    text: row.text,
+                } as TextQuestion;
+            }
+            return {
+                id: Number(row.id),
+                type: row.type,
+                text: row.text,
+                options: row.options ? JSON.parse(row.options) : [],
+            } as ChoiceQuestion;
+        });
+
+        return ok(questions);
+    } catch {
+        return errors.dbError('Failed to get questions');
     }
 }
 

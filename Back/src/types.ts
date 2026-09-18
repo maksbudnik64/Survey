@@ -11,11 +11,13 @@ export interface PublicUser {
 
 // ----- ВОПРОСЫ (Discriminated Union) -----
 export interface TextQuestion {
+    id: number;
     type: 'text';
     text: string;
 }
 
 export interface ChoiceQuestion {
+    id: number;
     type: 'single_choice' | 'multiple_choice';
     text: string;
     options: string[];
@@ -29,6 +31,10 @@ export interface Survey {
     author_id: number;
     answers_counter: number;
     created_at: Date;
+}
+
+export interface SurveyWithQuestions extends Survey {
+    questions: Question[];
 }
 
 // ----- ОТВЕТЫ API -----

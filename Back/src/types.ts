@@ -55,7 +55,8 @@ export type ErrorCode =
     | 'INTERNAL_ERROR'
     | 'UNAUTHORIZED'
     | 'TOKEN_EXPIRED'
-    | 'INVALID_TOKEN';
+    | 'INVALID_TOKEN'
+    | 'ALREADY_RESPONDED';
 
 export type ApiResponse<T> =
     | { success: true; data: T | null}

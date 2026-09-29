@@ -20,6 +20,7 @@ export const errors = {
     dbError: (msg = "Database error") => fail(msg, "DB_ERROR"),
     validation: (msg: string) => fail(msg, "VALIDATION_ERROR"),
     internal: (msg = "Internal error") => fail(msg, "INTERNAL_ERROR"),
+    alreadyResponded: () => fail("You have already responded", "ALREADY_RESPONDED"),
 };
 
 export function sendResponse<T>(res: Response, result: ApiResponse<T>): void {

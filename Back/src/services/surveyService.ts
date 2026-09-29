@@ -1,4 +1,5 @@
-import { selectMySurveys, selectSurveys, insertNewSurvey, selectSurveyById, updateSurvey as updateSurveyRepo, selectSurveyQuestions, selectSurveyAnswers, deleteSurvey as deleteSurveyRepo } from "../repositories/surveyRepository.ts";
+import { selectMySurveys, selectSurveys, insertNewSurvey, selectSurveyById, updateSurvey as updateSurveyRepo, selectSurveyQuestions, selectSurveyAnswers, deleteSurvey as deleteSurveyRepo, insertResponse, hasUserResponded } from "../repositories/surveyRepository.ts";
+import { selectUserById } from "../repositories/userRepository.ts";
 import type { Answer, ApiResponse, PublicUser, Question, Survey, SurveyWithQuestions } from "../types.ts";
 import { errors, ok } from "../utils/helpers.ts";
 
@@ -66,6 +67,27 @@ export async function createSurvey(user: PublicUser, title: string, questions: Q
     }
 
     return ok(surveyResult.data);
+}
+
+export async function submitResponse(userId: number, surveyId: number, answers: Record<string, string | string[]>): Promise<ApiResponse<number>>{
+    const surveyResult = await selectSurveyById(surveyId);
+    if (!surveyResult.success){
+        return surveyResult;
+ }
+
+    if (!surveyResult.data){
+        return errors.surveyNotFound();
+ }
+
+    const hasResponded = await hasUserResponded(userId, surveyId)
+        if (!hasResponded.success){
+            return hasResponded;
+        }
+        if(hasResponded.data){
+            return errors.alreadyResponded();
+        }
+
+    return await insertResponse(userId, surveyId, answers);
 }
 
 export async function updateSurvey( user: PublicUser, surveyId: number, title: string, questions: Question[]): Promise<ApiResponse<Survey>>{

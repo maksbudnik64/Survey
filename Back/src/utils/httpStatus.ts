@@ -13,6 +13,7 @@ export const HTTP_STATUS: Record<ErrorCode, number> = {
     UNAUTHORIZED: 401,
     TOKEN_EXPIRED: 401,
     INVALID_TOKEN: 403,
+    ALREADY_RESPONDED: 409,
 };
 
 export function getStatus(code: ErrorCode): number {

@@ -4,6 +4,9 @@ import { renderMain } from "../pages/main";
 import { renderProfile } from "../pages/profile";
 import { renderRegister } from "../pages/register";
 import { renderCreateSurvey, initCreateSurveyPage } from "../pages/createSurvey";
+import { renderSurveyEdit, initSurveyEditPage } from "../pages/surveyEdit";
+import { renderSurveyTake, initSurveyTakePage } from "../pages/surveyTake";
+import { renderSurveyStats, initSurveyStatsPage } from "../pages/surveyStats";
 import { isAuthenticated } from "./auth";
 
 export function navigateTo(path: string) {
@@ -19,6 +22,38 @@ export async function renderPage(path: string) {
     }
 
     const isAuth = isAuthenticated();
+
+    const surveyEditMatch = path.match(/^\/survey\/(\d+)\/edit$/);
+    if (surveyEditMatch && surveyEditMatch[1]) {
+        const surveyId = parseInt(surveyEditMatch[1]);
+        if (!isAuth) {
+            app.innerHTML = renderLogin();
+        } else {
+            app.innerHTML = renderSurveyEdit();
+            initSurveyEditPage(surveyId);
+        }
+        return;
+    }
+
+    const surveyStatsMatch = path.match(/^\/survey\/(\d+)\/stats$/);
+    if (surveyStatsMatch && surveyStatsMatch[1]) {
+        const surveyId = parseInt(surveyStatsMatch[1]);
+        if (!isAuth) {
+            app.innerHTML = renderLogin();
+        } else {
+            app.innerHTML = renderSurveyStats();
+            initSurveyStatsPage(surveyId);
+        }
+        return;
+    }
+
+    const surveyTakeMatch = path.match(/^\/survey\/(\d+)$/);
+    if (surveyTakeMatch && surveyTakeMatch[1]) {
+        const surveyId = parseInt(surveyTakeMatch[1]);
+        app.innerHTML = renderSurveyTake();
+        initSurveyTakePage(surveyId);
+        return;
+    }
 
     switch (path) {
         case '/':
@@ -54,7 +89,7 @@ export async function renderPage(path: string) {
                 app.innerHTML = renderLogin();
             } else {
                 app.innerHTML = renderCreateSurvey();
-                initCreateSurveyPage(); // 👈 Инициализация после рендера
+                initCreateSurveyPage();
             }
             break;
 

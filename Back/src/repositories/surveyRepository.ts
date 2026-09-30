@@ -90,16 +90,22 @@ export async function selectSurveyQuestions(surveyId: number): Promise<ApiRespon
                     text: row.text,
                 } as TextQuestion;
             }
+        
+        const options = typeof row.options === 'string'
+                ? JSON.parse(row.options)
+                : (row.options || []);
+
             return {
                 id: Number(row.id),
                 type: row.type,
                 text: row.text,
-                options: row.options ? JSON.parse(row.options) : [],
+                options: options,
             } as ChoiceQuestion;
         });
 
         return ok(questions);
-    } catch {
+    } catch (error: any) {
+        console.log(error);
         return errors.dbError('Failed to get questions');
     }
 }
@@ -113,11 +119,13 @@ export async function selectSurveyAnswers(surveyId: number): Promise<ApiResponse
             ORDER BY id`, [surveyId]);
         
                 const answers: Answer[] = rows.map((row: any) => {
-                    return {
-                        id: Number(row.id),
-                        answers:  row.answers ? JSON.parse(row.answers) : {},
-                    }
-                });
+        return {
+            id: Number(row.id),
+            answers: typeof row.answers === 'string'
+                ? JSON.parse(row.answers)
+                : (row.answers || {}),
+        };
+    });
 
                 return ok(answers);
             } catch {

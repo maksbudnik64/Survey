@@ -45,7 +45,7 @@ surveyRouter.get('/:id', async (req, res) => {
     if (surveyId === null) {
         return sendResponse(res, fail('Invalid survey ID', 'VALIDATION_ERROR'));
     }
-
+console.log('ghbyzmnj');
     const result = await getSurveyById(surveyId);
     return sendResponse(res, result);
 })

@@ -1,0 +1,16 @@
+// ===== AUTH =====
+export const MAX_EMAIL_LENGTH = 255;
+export const MIN_PASSWORD_LENGTH = 6;
+export const MAX_PASSWORD_LENGTH = 100;
+
+// ===== SURVEY =====
+export const MAX_TITLE_LENGTH = 255;
+export const MAX_QUESTION_TEXT_LENGTH = 500;
+export const MAX_OPTION_LENGTH = 255;
+export const MAX_QUESTIONS = 50;
+export const MAX_OPTIONS = 20;
+
+// ===== ANSWERS =====
+export const MAX_ANSWERS_JSON_SIZE = 100 * 1024;
+export const MAX_TEXT_ANSWER_LENGTH = 1000;
+export const MAX_ANSWERS_COUNT = 50;

@@ -1,10 +1,7 @@
-// Back/src/validators/authValidator.ts
 import type { Request, Response, NextFunction } from "express";
 import { errors, sendResponse } from "../utils/helpers.ts";
+import { MAX_EMAIL_LENGTH, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "../constants.ts";
 
-const MAX_EMAIL_LENGTH = 255;
-const MAX_PASSWORD_LENGTH = 100;
-const MIN_PASSWORD_LENGTH = 6;
 
 export function validateRegistration(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;

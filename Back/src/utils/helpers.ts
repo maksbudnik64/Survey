@@ -1,4 +1,3 @@
-// Back/src/utils/apiResponse.ts
 import type { ApiResponse, ErrorCode } from "../types.ts";
 import type { Response } from "express";
 import { getStatus } from "./httpStatus.ts";

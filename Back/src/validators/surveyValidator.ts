@@ -1,11 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
-import { errors, fail, sendResponse } from "../utils/helpers.ts";
-
-const MAX_TITLE_LENGTH = 255;
-const MAX_QUESTION_TEXT_LENGTH = 500;
-const MAX_OPTION_LENGTH = 255;
-const MAX_QUESTIONS = 50;
-const MAX_OPTIONS = 20;
+import { errors, sendResponse } from "../utils/helpers.ts";
+import {
+    MAX_TITLE_LENGTH,
+    MAX_QUESTION_TEXT_LENGTH,
+    MAX_OPTION_LENGTH,
+    MAX_QUESTIONS,
+    MAX_OPTIONS,
+} from "../constants.ts";
 
 export function validateSurvey(req: Request, res: Response, next: NextFunction){
     const { title, questions } = req.body;

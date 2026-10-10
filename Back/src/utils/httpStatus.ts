@@ -1,4 +1,3 @@
-// Back/src/utils/httpStatus.ts
 import type { ErrorCode } from "../types.ts";
 
 export const HTTP_STATUS: Record<ErrorCode, number> = {

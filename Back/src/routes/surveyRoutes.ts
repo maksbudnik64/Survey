@@ -3,6 +3,7 @@ import { Router } from "express";
 import { getMySurveys, getSurveys, createSurvey, updateSurvey, getSurveyById, getSurveyAnswers, deleteSurvey, submitResponse} from "../services/surveyService.ts";
 import { sendResponse, fail } from "../utils/helpers.ts";
 import { validateSurvey } from "../validators/surveyValidator.ts";
+import { validateAnswers } from "../validators/answersValidator.ts";
 
 const surveyRouter = Router();
 
@@ -45,12 +46,11 @@ surveyRouter.get('/:id', async (req, res) => {
     if (surveyId === null) {
         return sendResponse(res, fail('Invalid survey ID', 'VALIDATION_ERROR'));
     }
-console.log('ghbyzmnj');
     const result = await getSurveyById(surveyId);
     return sendResponse(res, result);
 })
 
-surveyRouter.post('/:id/responses', authenticateToken, async (req, res) => {
+surveyRouter.post('/:id/responses', authenticateToken, validateAnswers, async (req, res) => {
     if (!req.user) {
     return sendResponse(res, fail('User not authenticated', 'UNAUTHORIZED'));
 }

@@ -1,6 +1,6 @@
 import { authenticateToken } from "../middleware/auth.ts";
 import { Router } from "express";
-import { getMySurveys, getSurveys, createSurvey, updateSurvey, getSurveyById, getSurveyAnswers, deleteSurvey, submitResponse} from "../services/surveyService.ts";
+import { getMySurveys, getSurveys, createSurvey, updateSurvey, getSurveyById, getSurveyAnswers, deleteSurvey, submitResponse, hasUserRespondedToSurvey} from "../services/surveyService.ts";
 import { sendResponse, fail } from "../utils/helpers.ts";
 import { validateSurvey } from "../validators/surveyValidator.ts";
 import { validateAnswers } from "../validators/answersValidator.ts";
@@ -40,6 +40,20 @@ surveyRouter.get('/', async (req, res) =>{
     const result = await getSurveys();
     return sendResponse(res, result);
 })
+
+surveyRouter.get('/:id/responded', authenticateToken, async (req, res) => {
+    if (!req.user) {
+        return sendResponse(res, fail('User not authenticated', 'UNAUTHORIZED'));
+    }
+
+    const surveyId = parseId(req.params.id);
+    if (surveyId === null) {
+        return sendResponse(res, fail('Invalid survey ID', 'VALIDATION_ERROR'));
+    }
+
+    const result = await hasUserRespondedToSurvey(surveyId, req.user.id);
+    return sendResponse(res, result);
+});
 
 surveyRouter.get('/:id', async (req, res) => {
     const surveyId = parseId(req.params.id);

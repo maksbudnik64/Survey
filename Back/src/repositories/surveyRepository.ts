@@ -162,29 +162,38 @@ export async function insertNewSurvey(authorId: number, title: string, questions
     }
 }
 
-export async function insertResponse(userId: number, surveyId: number, answers: Record<string, string | string[]>): Promise<ApiResponse<number>>{
-    try{
-        const [result] = await pool.query<ResultSetHeader>(`
-            INSERT INTO responses (survey_id, user_id, answers) VALUES (?, ?, ?)`, [surveyId, userId, JSON.stringify(answers)]);
-            return ok(result.insertId)
-    } catch(error: any) {
-        if (error.code === 'ER_DUP_ENTRY'){
-           return errors.alreadyResponded();
+export async function insertResponse(
+    surveyId: number,
+    userId: number,
+    answers: Record<string, string | string[]>
+): Promise<ApiResponse<number>> {
+    try {
+        const [result] = await pool.query<ResultSetHeader>(
+            `INSERT INTO responses (survey_id, user_id, answers) VALUES (?, ?, ?)`,
+            [surveyId, userId, JSON.stringify(answers)]
+        );
+        return ok(result.insertId);
+    } catch (error: any) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            return errors.alreadyResponded();
         }
-        return errors.dbError('Failed to insert response')
+        console.error('Failed to insert response:', error);
+        return errors.dbError('Failed to insert response');
     }
 }
 
-export async function hasUserResponded(userId: number, surveyId: number): Promise<ApiResponse<boolean>>{
-    try{
-        const [rows] = await pool.query<RowDataPacket[]>(`
-            SELECT id FROM responses WHERE survey_id = ? AND user_id = ?`, [surveyId, userId]);
-            if(rows.length > 0){
-                return ok(true);
-            }
-            return ok(false);
+export async function hasUserResponded(
+    surveyId: number,
+    userId: number
+): Promise<ApiResponse<boolean>> {
+    try {
+        const [rows] = await pool.query<RowDataPacket[]>(
+            `SELECT id FROM responses WHERE survey_id = ? AND user_id = ? LIMIT 1`,
+            [surveyId, userId]
+        );
+        return ok(rows.length > 0);
     } catch {
-        return errors.dbError('Failed to check response')
+        return errors.dbError('Failed to check response');
     }
 }
 

@@ -73,19 +73,16 @@ export async function submitResponse(
     surveyId: number,
     answers: Record<string, string | string[]>
 ): Promise<ApiResponse<number>> {
-    // 1. Проверяем, что опрос существует
     const surveyResult = await selectSurveyById(surveyId);
     if (!surveyResult.success) return surveyResult;
     if (!surveyResult.data) return errors.surveyNotFound();
 
-    // 2. Проверяем, не проходил ли уже
     const hasResponded = await hasUserResponded(surveyId, userId);
     if (!hasResponded.success) return hasResponded;
     if (hasResponded.data) {
         return errors.alreadyResponded();
     }
 
-    // 3. Загружаем вопросы
     const questionsResult = await selectSurveyQuestions(surveyId);
     if (!questionsResult.success) return questionsResult;
     if (!questionsResult.data) return errors.internal('Questions not found');
@@ -174,6 +171,17 @@ function validateAnswersAgainstQuestions(
 
 function choiceOptionsIncludes(q: ChoiceQuestion, value: string): boolean {
     return q.options.includes(value);
+}
+
+export async function hasUserRespondedToSurvey(
+    surveyId: number,
+    userId: number
+): Promise<ApiResponse<boolean>> {
+    const surveyResult = await selectSurveyById(surveyId);
+    if (!surveyResult.success) return surveyResult;
+    if (!surveyResult.data) return errors.surveyNotFound();
+
+    return await hasUserResponded(surveyId, userId);
 }
 
 export async function updateSurvey( user: PublicUser, surveyId: number, title: string, questions: Question[]): Promise<ApiResponse<Survey>>{

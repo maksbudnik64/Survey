@@ -35,18 +35,8 @@ export async function getSurveyById(surveyId: number): Promise<ApiResponse<Surve
 }
 
 export async function getSurveyAnswers(user: PublicUser, surveyId: number): Promise<ApiResponse<Answer[]>>{
-    const surveyResult = await selectSurveyById(surveyId);
-    if (!surveyResult.success){
-        return surveyResult;
- }
-
-    if (!surveyResult.data){
-        return errors.surveyNotFound();
- }
-
-    if (surveyResult.data.author_id !== user.id){
-        return errors.forbidden();
- }
+    const surveyResult = await getOwnedSurveyOrError(user.id, surveyId);
+    if (!surveyResult.success) return surveyResult;
 
     const result = await selectSurveyAnswers(surveyId);
     return result;
@@ -73,9 +63,8 @@ export async function submitResponse(
     surveyId: number,
     answers: Record<string, string | string[]>
 ): Promise<ApiResponse<number>> {
-    const surveyResult = await selectSurveyById(surveyId);
+    const surveyResult = await getSurveyOrError(surveyId);
     if (!surveyResult.success) return surveyResult;
-    if (!surveyResult.data) return errors.surveyNotFound();
 
     const hasResponded = await hasUserResponded(surveyId, userId);
     if (!hasResponded.success) return hasResponded;
@@ -177,26 +166,16 @@ export async function hasUserRespondedToSurvey(
     surveyId: number,
     userId: number
 ): Promise<ApiResponse<boolean>> {
-    const surveyResult = await selectSurveyById(surveyId);
-    if (!surveyResult.success) return surveyResult;
-    if (!surveyResult.data) return errors.surveyNotFound();
-
+    const surveyResult = await getSurveyOrError(surveyId);
+    if (!surveyResult.success) {
+        return surveyResult;
+    }
     return await hasUserResponded(surveyId, userId);
 }
 
 export async function updateSurvey( user: PublicUser, surveyId: number, title: string, questions: Question[]): Promise<ApiResponse<Survey>>{
-    const surveyResult = await selectSurveyById(surveyId);
-    if (!surveyResult.success){
-        return surveyResult;
- }
-
-    if (!surveyResult.data){
-        return errors.surveyNotFound();
- }
-
-    if (surveyResult.data.author_id !== user.id){
-        return errors.forbidden();
- }
+    const surveyResult = await getOwnedSurveyOrError(user.id, surveyId);
+    if (!surveyResult.success) return surveyResult;
 
     const result = await updateSurveyRepo(surveyId, title, questions);
     if (!result.success){
@@ -211,19 +190,26 @@ export async function updateSurvey( user: PublicUser, surveyId: number, title: s
 }
 
 export async function deleteSurvey(user: PublicUser, surveyId: number): Promise<ApiResponse<null>>{
-     const surveyResult = await selectSurveyById(surveyId);
-    if (!surveyResult.success){
-        return surveyResult;
- }
+    const surveyResult = await getOwnedSurveyOrError(user.id, surveyId);
+    if (!surveyResult.success) return surveyResult;
 
-    if (!surveyResult.data){
-        return errors.surveyNotFound();
- }
-
-    if (surveyResult.data.author_id !== user.id){
-        return errors.forbidden();
- }
-    
     const result = await deleteSurveyRepo(surveyId);
     return result;
+}
+
+async function getSurveyOrError(surveyId: number): Promise<ApiResponse<Survey>> {
+    const surveyResult = await selectSurveyById(surveyId);
+    if (!surveyResult.success) return surveyResult;
+    if (!surveyResult.data) return errors.surveyNotFound();
+    return surveyResult;
+}
+
+async function getOwnedSurveyOrError(userId: number, surveyId: number): Promise<ApiResponse<Survey>> {
+    const surveyResult = await selectSurveyById(surveyId);
+    if (!surveyResult.success) return surveyResult;
+    if (!surveyResult.data) return errors.surveyNotFound();
+    if (surveyResult.data.author_id !== userId) {
+        return errors.forbidden();
+    }
+    return surveyResult;
 }

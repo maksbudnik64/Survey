@@ -30,11 +30,9 @@ function formatDate(dateString: string): string {
     });
 }
 
-// Обработчики кликов
 document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
 
-    // Копирование ссылки
     if (target.classList.contains('copy-btn')) {
         const url = target.getAttribute('data-url');
         if (url) {
@@ -47,11 +45,10 @@ document.addEventListener('click', (e) => {
         }
     }
 
-    // Переход к опросу
     if (target.classList.contains('survey-edit-btn')) {
         const id = target.getAttribute('data-id');
         if (id) {
-            navigateTo(`/survey/${id}/edit`);
+            navigateTo(`/survey/${id}`);
         }
     }
 });

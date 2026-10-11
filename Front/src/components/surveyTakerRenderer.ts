@@ -1,17 +1,22 @@
 import { QuestionRenderer } from "./questionRenderer";
 import type { Question } from "../types";
+import { MAX_TEXT_ANSWER_LENGTH } from "../constants";
 
 export class SurveyTakerRenderer extends QuestionRenderer {
     protected renderBody(question: Question, index: number): string {
+        const questionText = `<p class="question-text-display">${question.text}</p>`;
+
         if (question.type === 'text') {
             return `
+                ${questionText}
                 <div class="form-group">
-                    <input 
-                        type="text" 
+                    <textarea 
                         class="answer-input" 
                         data-question-id="${question.id}"
                         placeholder="Ваш ответ"
-                    >
+                        maxlength="${MAX_TEXT_ANSWER_LENGTH}"
+                        rows="3"
+                    ></textarea>
                 </div>
             `;
         }
@@ -21,6 +26,7 @@ export class SurveyTakerRenderer extends QuestionRenderer {
             const name = `question-${question.id}`;
 
             return `
+                ${questionText}
                 <div class="form-group options-list">
                     ${question.options.map((opt) => `
                         <label class="option-label">

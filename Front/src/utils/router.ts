@@ -7,10 +7,17 @@ import { renderCreateSurvey, initCreateSurveyPage } from "../pages/createSurvey"
 import { renderSurveyEdit, initSurveyEditPage } from "../pages/surveyEdit";
 import { renderSurveyTake, initSurveyTakePage } from "../pages/surveyTake";
 import { renderSurveyStats, initSurveyStatsPage } from "../pages/surveyStats";
-import { isAuthenticated } from "./auth";
+import { isAuthenticated, getUser } from "./auth";
+import { get } from "../api/client";
+import { showToast } from "../components/toast";
+import type { SurveyWithQuestions } from "../types";
 
-export function navigateTo(path: string) {
-    window.history.pushState({}, '', path);
+export function navigateTo(path: string, replace = false) {
+    if (replace) {
+        window.history.replaceState({}, '', path);
+    } else {
+        window.history.pushState({}, '', path);
+    }
     renderPage(path);
 }
 
@@ -26,32 +33,110 @@ export async function renderPage(path: string) {
     const surveyEditMatch = path.match(/^\/survey\/(\d+)\/edit$/);
     if (surveyEditMatch && surveyEditMatch[1]) {
         const surveyId = parseInt(surveyEditMatch[1]);
+
         if (!isAuth) {
             app.innerHTML = renderLogin();
-        } else {
-            app.innerHTML = renderSurveyEdit();
-            initSurveyEditPage(surveyId);
+            return;
         }
+
+        const result = await get<SurveyWithQuestions>(`/surveys/${surveyId}`);
+
+        if (!result.success) {
+            showToast({ message: result.error, type: 'error' });
+            navigateTo('/', true);
+            return;
+        }
+
+        if (!result.data) {
+            showToast({ message: 'Опрос не найден', type: 'error' });
+            navigateTo('/', true);
+            return;
+        }
+
+        const user = getUser();
+        const isAuthor = user && result.data.author_id === user.id;
+
+        if (!isAuthor) {
+            showToast({ message: 'У вас нет доступа к редактированию', type: 'error' });
+            navigateTo(`/survey/${surveyId}`, true);
+            return;
+        }
+
+        app.innerHTML = renderSurveyEdit();
+        initSurveyEditPage(surveyId);
         return;
     }
 
     const surveyStatsMatch = path.match(/^\/survey\/(\d+)\/stats$/);
     if (surveyStatsMatch && surveyStatsMatch[1]) {
         const surveyId = parseInt(surveyStatsMatch[1]);
+
         if (!isAuth) {
             app.innerHTML = renderLogin();
-        } else {
-            app.innerHTML = renderSurveyStats();
-            initSurveyStatsPage(surveyId);
+            return;
         }
+
+        const result = await get<SurveyWithQuestions>(`/surveys/${surveyId}`);
+
+        if (!result.success) {
+            showToast({ message: result.error, type: 'error' });
+            navigateTo('/', true);
+            return;
+        }
+
+        if (!result.data) {
+            showToast({ message: 'Опрос не найден', type: 'error' });
+            navigateTo('/', true);
+            return;
+        }
+
+        const user = getUser();
+        const isAuthor = user && result.data.author_id === user.id;
+
+        if (!isAuthor) {
+            showToast({ message: 'У вас нет доступа к статистике', type: 'error' });
+            navigateTo(`/survey/${surveyId}`, true);
+            return;
+        }
+
+        app.innerHTML = renderSurveyStats();
+        initSurveyStatsPage(surveyId);
         return;
     }
 
     const surveyTakeMatch = path.match(/^\/survey\/(\d+)$/);
     if (surveyTakeMatch && surveyTakeMatch[1]) {
         const surveyId = parseInt(surveyTakeMatch[1]);
-        app.innerHTML = renderSurveyTake();
-        initSurveyTakePage(surveyId);
+
+        if (!isAuth) {
+            showToast({ message: 'Войдите, чтобы пройти опрос', type: 'info' });
+            navigateTo('/login', true);
+            return;
+        }
+
+        const result = await get<SurveyWithQuestions>(`/surveys/${surveyId}`);
+
+        if (!result.success) {
+            showToast({ message: result.error, type: 'error' });
+            navigateTo('/', true);
+            return;
+        }
+
+        if (!result.data) {
+            showToast({ message: 'Опрос не найден', type: 'error' });
+            navigateTo('/', true);
+            return;
+        }
+
+        const user = getUser();
+        const isAuthor = user && result.data.author_id === user.id;
+
+        if (isAuthor) {
+            navigateTo(`/survey/${surveyId}/edit`, true);
+        } else {
+            app.innerHTML = renderSurveyTake();
+            initSurveyTakePage(surveyId);
+        }
         return;
     }
 
@@ -72,7 +157,7 @@ export async function renderPage(path: string) {
             if (!isAuth) {
                 app.innerHTML = renderLogin();
             } else {
-                navigateTo('/profile');
+                navigateTo('/profile', true);
             }
             break;
 
@@ -80,7 +165,7 @@ export async function renderPage(path: string) {
             if (!isAuth) {
                 app.innerHTML = renderRegister();
             } else {
-                navigateTo('/profile');
+                navigateTo('/profile', true);
             }
             break;
 

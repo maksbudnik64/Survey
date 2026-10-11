@@ -1,8 +1,6 @@
 import { QuestionRenderer } from "./questionRenderer";
 import type { Question } from "../types";
-
-const MAX_QUESTION_TEXT_LENGTH = 500;
-const MAX_OPTION_LENGTH = 255;
+import { MAX_QUESTION_TEXT_LENGTH, MAX_OPTION_LENGTH } from "../constants";
 
 export class SurveyEditorRenderer extends QuestionRenderer {
     protected renderHeader(question: Question, index: number): string {
@@ -18,14 +16,13 @@ export class SurveyEditorRenderer extends QuestionRenderer {
         return `
             <div class="form-group">
                 <div class="input-with-counter">
-                    <input 
-                        type="text" 
+                    <textarea 
                         class="question-text" 
                         data-index="${index}"
                         placeholder="Текст вопроса" 
-                        value="${question.text}" 
                         maxlength="${MAX_QUESTION_TEXT_LENGTH}"
-                    >
+                        rows="2"
+                    >${question.text}</textarea>
                     <span class="char-counter">${question.text.length} / ${MAX_QUESTION_TEXT_LENGTH}</span>
                 </div>
             </div>
@@ -49,12 +46,11 @@ export class SurveyEditorRenderer extends QuestionRenderer {
                     ${question.options.map((opt, oi) => `
                         <div class="option-row" data-question-index="${index}" data-option-index="${oi}">
                             <div class="input-with-icon">
-                                <input 
-                                    type="text" 
+                                <textarea 
                                     class="option-input" 
-                                    value="${opt}" 
                                     maxlength="${MAX_OPTION_LENGTH}"
-                                >
+                                    rows="1"
+                                >${opt}</textarea>
                                 <span class="char-counter option-counter">${opt.length} / ${MAX_OPTION_LENGTH}</span>
                                 <button type="button" class="remove-option-btn">✕</button>
                             </div>

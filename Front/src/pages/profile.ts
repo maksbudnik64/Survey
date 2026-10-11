@@ -44,7 +44,6 @@ export async function renderProfile(): Promise<string> {
     `;
 }
 
-// Обработчик клика по кнопке "Создать опрос"
 document.addEventListener('click', (e) => {
     const target = e.target;
     if(!(target instanceof HTMLElement)){

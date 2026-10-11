@@ -1,4 +1,3 @@
-// Front/src/pages/register.ts
 import { post } from "../api/client";
 import { saveAuth } from "../utils/auth";
 import type { PublicUser } from "../types";

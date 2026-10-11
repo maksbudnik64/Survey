@@ -1,4 +1,3 @@
-// src/pages/main.ts
 import { get } from "../api/client";
 import { renderHeader } from "../components/header";
 import { renderSurveyCard } from "../components/surveyCard";

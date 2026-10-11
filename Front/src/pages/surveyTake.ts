@@ -21,6 +21,15 @@ export function renderSurveyTake(): string {
 }
 
 export async function initSurveyTakePage(surveyId: number) {
+    const respondedResult = await get<boolean>(`/surveys/${surveyId}/responded`);
+
+    if (respondedResult.success && respondedResult.data === true) {
+        showToast({ message: 'Вы уже проходили этот опрос', type: 'info' });
+        navigateTo('/');
+        return;
+    }
+
+
     const result = await get<SurveyWithQuestions>(`/surveys/${surveyId}`);
 
     if (!result.success) {

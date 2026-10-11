@@ -3,31 +3,45 @@ import { renderHeader } from "../components/header";
 import { showToast } from "../components/toast";
 import { navigateTo } from "../utils/router";
 import { SurveyStatsRenderer, type QuestionStats } from "../components/surveyStatsRenderer";
-import type { SurveyWithQuestions, Answer, Question } from "../types";
+import type { SurveyWithQuestions, Answer, Question, ChoiceQuestion } from "../types";
 
 export function renderSurveyStats(): string {
     return `
         ${renderHeader()}
         <main class="main-content">
-            <h1 id="survey-title">Статистика</h1>
+            <div class="page-header">
+                <h1 id="survey-title">Статистика</h1>
+                <div class="page-tabs">
+                    <button class="tab" id="edit-tab-btn">✏️ Редактирование</button>
+                    <button class="tab active" data-tab="stats">📊 Статистика</button>
+                </div>
+            </div>
             <div id="stats-container">Загрузка...</div>
             <button id="back-btn" class="secondary" style="margin-top: 1rem;">← Назад</button>
         </main>
     `;
 }
 
+function isChoiceQuestion(q: Question): q is ChoiceQuestion {
+    return q.type === 'single_choice' || q.type === 'multiple_choice';
+}
+
 export async function initSurveyStatsPage(surveyId: number) {
+    document.getElementById('edit-tab-btn')?.addEventListener('click', () => {
+        navigateTo(`/survey/${surveyId}/edit`);
+    });
+
     const surveyResult = await get<SurveyWithQuestions>(`/surveys/${surveyId}`);
 
     if (!surveyResult.success) {
         showToast({ message: surveyResult.error, type: 'error' });
-        navigateTo('/profile');
+        navigateTo('/profile', true);
         return;
     }
 
     if (!surveyResult.data) {
         showToast({ message: 'Опрос не найден', type: 'error' });
-        navigateTo('/profile');
+        navigateTo('/profile', true);
         return;
     }
 
@@ -48,9 +62,15 @@ export async function initSurveyStatsPage(surveyId: number) {
         .map(q => {
             const counts = new Map<string, number>();
 
+            if (isChoiceQuestion(q)) {
+                for (const opt of q.options) {
+                    counts.set(opt, 0);
+                }
+            }
+
             for (const answer of answers) {
                 const value = answer.answers[q.id];
-                if (!value) continue;
+                if (value === undefined || value === null) continue;
 
                 if (Array.isArray(value)) {
                     for (const v of value) {
@@ -69,6 +89,8 @@ export async function initSurveyStatsPage(surveyId: number) {
 
             return {
                 questionId: q.id,
+                questionText: q.text,
+                type: q.type,
                 total: totalResponses,
                 options,
             };
@@ -82,6 +104,6 @@ export async function initSurveyStatsPage(surveyId: number) {
     if (container) container.innerHTML = renderer.render();
 
     document.getElementById('back-btn')?.addEventListener('click', () => {
-        navigateTo('/profile');
+        navigateTo('/profile', true);
     });
 }

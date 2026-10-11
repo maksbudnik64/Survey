@@ -3,6 +3,8 @@ import type { Question } from "../types";
 
 export interface QuestionStats {
     questionId: number;
+    questionText: string;
+    type: string;
     total: number;
     options: { label: string; count: number; percentage: number }[];
 }
@@ -17,6 +19,15 @@ export class SurveyStatsRenderer extends QuestionRenderer {
         this.totalResponses = totalResponses;
     }
 
+    protected renderHeader(question: Question, index: number): string {
+        return `
+            <div class="question-header">
+                <span class="question-number">Вопрос ${index + 1}</span>
+            </div>
+            <p class="question-text-display">${question.text}</p>
+        `;
+    }
+
     protected renderBody(question: Question, index: number): string {
         return `
             <div class="stats-total">
@@ -29,11 +40,15 @@ export class SurveyStatsRenderer extends QuestionRenderer {
         const stats = this.stats.find(s => s.questionId === question.id);
         if (!stats) return '<p>Нет данных</p>';
 
+        if (stats.options.length === 0) {
+            return '<p>Нет данных</p>';
+        }
+
         return `
             <div class="stats-list">
                 ${stats.options.map(opt => `
                     <div class="stat-row">
-                        <span class="stat-label">${opt.label}</span>
+                        <span class="stat-label" title="${opt.label}">${opt.label}</span>
                         <div class="stat-bar">
                             <div class="stat-bar-fill" style="width: ${opt.percentage}%"></div>
                         </div>

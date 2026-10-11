@@ -4,14 +4,15 @@ import { showToast } from "../components/toast";
 import { navigateTo } from "../utils/router";
 import type { Question, ChoiceQuestion } from "../types";
 import { SurveyEditorRenderer } from "../components/surveyEditorRenderer";
+import {
+    MAX_TITLE_LENGTH,
+    MAX_QUESTION_TEXT_LENGTH,
+    MAX_OPTION_LENGTH,
+    MAX_QUESTIONS,
+    MAX_OPTIONS,
+} from "../constants";
 
 let questions: Question[] = [];
-
-const MAX_TITLE_LENGTH = 255;
-const MAX_QUESTION_TEXT_LENGTH = 500;
-const MAX_OPTION_LENGTH = 255;
-const MAX_QUESTIONS = 50;
-const MAX_OPTIONS = 20;
 
 function isChoiceQuestion(q: Question): q is ChoiceQuestion {
     return q.type === 'single_choice' || q.type === 'multiple_choice';
@@ -26,13 +27,13 @@ export function renderCreateSurvey(): string {
                 <div class="form-group">
                     <label for="survey-title">Название опроса</label>
                     <div class="input-with-counter">
-                        <input 
-                            type="text" 
+                        <textarea 
                             id="survey-title" 
                             placeholder="Введите название" 
                             maxlength="${MAX_TITLE_LENGTH}" 
+                            rows="1"
                             required
-                        >
+                        ></textarea>
                         <span class="char-counter" id="title-counter">0 / ${MAX_TITLE_LENGTH}</span>
                     </div>
                 </div>
@@ -53,12 +54,23 @@ export function initCreateSurveyPage() {
     questions = [];
     renderQuestions();
 
-    const titleInput = document.getElementById('survey-title') as HTMLInputElement;
+    const titleInput = document.getElementById('survey-title') as HTMLTextAreaElement;
     const titleCounter = document.getElementById('title-counter');
     if (titleInput && titleCounter) {
         titleInput.addEventListener('input', () => {
             titleCounter.textContent = `${titleInput.value.length} / ${MAX_TITLE_LENGTH}`;
         });
+    }
+
+    // 👇 Локальные слушатели (без document)
+    const addBtn = document.getElementById('add-question-btn');
+    if (addBtn) {
+        addBtn.addEventListener('click', addQuestion);
+    }
+
+    const form = document.getElementById('create-survey-form');
+    if (form) {
+        form.addEventListener('submit', handleSubmit);
     }
 }
 
@@ -73,6 +85,44 @@ function renderQuestions() {
 }
 
 function attachListeners(container: HTMLElement) {
+    // Ввод текста вопроса
+    container.querySelectorAll('.question-text').forEach((textarea) => {
+        textarea.addEventListener('input', (e) => {
+            const block = (e.target as HTMLElement).closest('.question-block') as HTMLElement | null;
+            if (!block) return;
+            const index = parseInt(block.dataset.index || '0');
+            if (!questions[index]) return;
+
+            const value = (e.target as HTMLTextAreaElement).value;
+            questions[index].text = value;
+
+            const counter = block.querySelector('.char-counter');
+            if (counter) counter.textContent = `${value.length} / ${MAX_QUESTION_TEXT_LENGTH}`;
+        });
+    });
+
+    // Ввод опции
+    container.querySelectorAll('.option-input').forEach((textarea) => {
+        textarea.addEventListener('input', (e) => {
+            const row = (e.target as HTMLElement).closest('.option-row') as HTMLElement | null;
+            if (!row) return;
+            const qi = parseInt(row.getAttribute('data-question-index') || '0');
+            const oi = parseInt(row.getAttribute('data-option-index') || '0');
+            if (!questions[qi]) return;
+
+            const question = questions[qi];
+            if (isChoiceQuestion(question)) {
+                question.options[oi] = (e.target as HTMLTextAreaElement).value;
+            }
+
+            const counter = row.querySelector('.option-counter');
+            if (counter) {
+                counter.textContent = `${(e.target as HTMLTextAreaElement).value.length} / ${MAX_OPTION_LENGTH}`;
+            }
+        });
+    });
+
+    // Смена типа
     container.querySelectorAll('.question-type').forEach((select) => {
         select.addEventListener('change', (e) => {
             const block = (e.target as HTMLElement).closest('.question-block') as HTMLElement | null;
@@ -102,40 +152,7 @@ function attachListeners(container: HTMLElement) {
         });
     });
 
-    container.querySelectorAll('.question-text').forEach((input) => {
-        input.addEventListener('input', (e) => {
-            const block = (e.target as HTMLElement).closest('.question-block') as HTMLElement | null;
-            if (!block) return;
-            const index = parseInt(block.dataset.index || '0');
-            if (!questions[index]) return;
-            const value = (e.target as HTMLInputElement).value;
-            questions[index].text = value;
-
-            const counter = block.querySelector('.char-counter');
-            if (counter) counter.textContent = `${value.length} / ${MAX_QUESTION_TEXT_LENGTH}`;
-        });
-    });
-
-    container.querySelectorAll('.option-input').forEach((input) => {
-        input.addEventListener('input', (e) => {
-            const row = (e.target as HTMLElement).closest('.option-row') as HTMLElement | null;
-            if (!row) return;
-            const qi = parseInt(row.getAttribute('data-question-index') || '0');
-            const oi = parseInt(row.getAttribute('data-option-index') || '0');
-            if (!questions[qi]) return;
-
-            const question = questions[qi];
-            if (isChoiceQuestion(question)) {
-                question.options[oi] = (e.target as HTMLInputElement).value;
-            }
-
-            const counter = row.querySelector('.option-counter');
-            if (counter) {
-                counter.textContent = `${(e.target as HTMLInputElement).value.length} / ${MAX_OPTION_LENGTH}`;
-            }
-        });
-    });
-
+    // Удаление опции
     container.querySelectorAll('.remove-option-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const row = (e.target as HTMLElement).closest('.option-row') as HTMLElement | null;
@@ -152,6 +169,7 @@ function attachListeners(container: HTMLElement) {
         });
     });
 
+    // Добавление опции
     container.querySelectorAll('.add-option-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const qi = parseInt((e.target as HTMLElement).getAttribute('data-question-index') || '0');
@@ -170,6 +188,7 @@ function attachListeners(container: HTMLElement) {
         });
     });
 
+    // Удаление вопроса
     container.querySelectorAll('.remove-question-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const block = (e.target as HTMLElement).closest('.question-block') as HTMLElement | null;
@@ -195,19 +214,10 @@ function addQuestion() {
     renderQuestions();
 }
 
-document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    if (target.id === 'add-question-btn') {
-        addQuestion();
-    }
-});
-
-document.addEventListener('submit', async (e) => {
-    const form = (e.target as HTMLElement).closest('#create-survey-form');
-    if (!form) return;
+async function handleSubmit(e: Event) {
     e.preventDefault();
 
-    const titleInput = document.getElementById('survey-title') as HTMLInputElement;
+    const titleInput = document.getElementById('survey-title') as HTMLTextAreaElement;
     const title = titleInput?.value.trim() || '';
 
     if (!title) {
@@ -282,5 +292,6 @@ document.addEventListener('submit', async (e) => {
     }
 
     showToast({ message: 'Опрос создан! 🎉', type: 'success' });
+    questions = [];
     navigateTo('/profile');
-});
+}

@@ -1,18 +1,19 @@
-import { get, put } from "../api/client";
+import { get, put, del } from "../api/client";
 import { renderHeader } from "../components/header";
 import { showToast } from "../components/toast";
 import { navigateTo } from "../utils/router";
 import { SurveyEditorRenderer } from "../components/surveyEditorRenderer";
 import type { SurveyWithQuestions, Question, ChoiceQuestion } from "../types";
+import {
+    MAX_TITLE_LENGTH,
+    MAX_QUESTION_TEXT_LENGTH,
+    MAX_OPTION_LENGTH,
+    MAX_QUESTIONS,
+    MAX_OPTIONS,
+} from "../constants";
 
 let questions: Question[] = [];
 let currentSurveyId: number | null = null;
-
-const MAX_TITLE_LENGTH = 255;
-const MAX_QUESTION_TEXT_LENGTH = 500;
-const MAX_OPTION_LENGTH = 255;
-const MAX_QUESTIONS = 50;
-const MAX_OPTIONS = 20;
 
 function isChoiceQuestion(q: Question): q is ChoiceQuestion {
     return q.type === 'single_choice' || q.type === 'multiple_choice';
@@ -22,18 +23,24 @@ export function renderSurveyEdit(): string {
     return `
         ${renderHeader()}
         <main class="main-content">
-            <h1>Редактирование опроса</h1>
+            <div class="page-header">
+                <h1>Редактирование опроса</h1>
+                <div class="page-tabs">
+                    <button class="tab active" data-tab="edit">✏️ Редактирование</button>
+                    <button class="tab" id="stats-tab-btn">📊 Статистика</button>
+                </div>
+            </div>
             <form id="edit-survey-form" class="create-survey-form">
                 <div class="form-group">
                     <label for="survey-title">Название опроса</label>
                     <div class="input-with-counter">
-                        <input 
-                            type="text" 
+                        <textarea 
                             id="survey-title" 
                             placeholder="Название" 
                             maxlength="${MAX_TITLE_LENGTH}" 
+                            rows="1"
                             required
-                        >
+                        ></textarea>
                         <span class="char-counter" id="title-counter">0 / ${MAX_TITLE_LENGTH}</span>
                     </div>
                 </div>
@@ -45,6 +52,9 @@ export function renderSurveyEdit(): string {
                 <button type="submit" class="primary" style="width: 100%; margin-top: 1rem;">
                     Сохранить изменения
                 </button>
+                <button type="button" id="delete-survey-btn" class="danger" style="width: 100%; margin-top: 0.75rem;">
+                    Удалить опрос
+                </button>
             </form>
         </main>
     `;
@@ -52,6 +62,12 @@ export function renderSurveyEdit(): string {
 
 export async function initSurveyEditPage(surveyId: number) {
     currentSurveyId = surveyId;
+
+    document.getElementById('stats-tab-btn')?.addEventListener('click', () => {
+        navigateTo(`/survey/${surveyId}/stats`);
+    });
+
+    document.getElementById('delete-survey-btn')?.addEventListener('click', handleDelete);
 
     const result = await get<SurveyWithQuestions>(`/surveys/${surveyId}`);
 
@@ -69,7 +85,7 @@ export async function initSurveyEditPage(surveyId: number) {
 
     const survey = result.data;
 
-    const titleInput = document.getElementById('survey-title') as HTMLInputElement;
+    const titleInput = document.getElementById('survey-title') as HTMLTextAreaElement;
     const titleCounter = document.getElementById('title-counter');
     if (titleInput) {
         titleInput.value = survey.title;
@@ -85,6 +101,17 @@ export async function initSurveyEditPage(surveyId: number) {
 
     questions = survey.questions;
     renderQuestions();
+
+    // 👇 Локальные слушатели (без document)
+    const addBtn = document.getElementById('add-question-btn');
+    if (addBtn) {
+        addBtn.addEventListener('click', addQuestion);
+    }
+
+    const form = document.getElementById('edit-survey-form');
+    if (form) {
+        form.addEventListener('submit', handleSubmit);
+    }
 }
 
 function renderQuestions() {
@@ -98,6 +125,44 @@ function renderQuestions() {
 }
 
 function attachListeners(container: HTMLElement) {
+    // Ввод текста вопроса
+    container.querySelectorAll('.question-text').forEach((textarea) => {
+        textarea.addEventListener('input', (e) => {
+            const block = (e.target as HTMLElement).closest('.question-block') as HTMLElement | null;
+            if (!block) return;
+            const index = parseInt(block.dataset.index || '0');
+            if (!questions[index]) return;
+
+            const value = (e.target as HTMLTextAreaElement).value;
+            questions[index].text = value;
+
+            const counter = block.querySelector('.char-counter');
+            if (counter) counter.textContent = `${value.length} / ${MAX_QUESTION_TEXT_LENGTH}`;
+        });
+    });
+
+    // Ввод опции
+    container.querySelectorAll('.option-input').forEach((textarea) => {
+        textarea.addEventListener('input', (e) => {
+            const row = (e.target as HTMLElement).closest('.option-row') as HTMLElement | null;
+            if (!row) return;
+            const qi = parseInt(row.getAttribute('data-question-index') || '0');
+            const oi = parseInt(row.getAttribute('data-option-index') || '0');
+            if (!questions[qi]) return;
+
+            const question = questions[qi];
+            if (isChoiceQuestion(question)) {
+                question.options[oi] = (e.target as HTMLTextAreaElement).value;
+            }
+
+            const counter = row.querySelector('.option-counter');
+            if (counter) {
+                counter.textContent = `${(e.target as HTMLTextAreaElement).value.length} / ${MAX_OPTION_LENGTH}`;
+            }
+        });
+    });
+
+    // Смена типа
     container.querySelectorAll('.question-type').forEach((select) => {
         select.addEventListener('change', (e) => {
             const block = (e.target as HTMLElement).closest('.question-block') as HTMLElement | null;
@@ -127,40 +192,7 @@ function attachListeners(container: HTMLElement) {
         });
     });
 
-    container.querySelectorAll('.question-text').forEach((input) => {
-        input.addEventListener('input', (e) => {
-            const block = (e.target as HTMLElement).closest('.question-block') as HTMLElement | null;
-            if (!block) return;
-            const index = parseInt(block.dataset.index || '0');
-            if (!questions[index]) return;
-            const value = (e.target as HTMLInputElement).value;
-            questions[index].text = value;
-
-            const counter = block.querySelector('.char-counter');
-            if (counter) counter.textContent = `${value.length} / ${MAX_QUESTION_TEXT_LENGTH}`;
-        });
-    });
-
-    container.querySelectorAll('.option-input').forEach((input) => {
-        input.addEventListener('input', (e) => {
-            const row = (e.target as HTMLElement).closest('.option-row') as HTMLElement | null;
-            if (!row) return;
-            const qi = parseInt(row.getAttribute('data-question-index') || '0');
-            const oi = parseInt(row.getAttribute('data-option-index') || '0');
-            if (!questions[qi]) return;
-
-            const question = questions[qi];
-            if (isChoiceQuestion(question)) {
-                question.options[oi] = (e.target as HTMLInputElement).value;
-            }
-
-            const counter = row.querySelector('.option-counter');
-            if (counter) {
-                counter.textContent = `${(e.target as HTMLInputElement).value.length} / ${MAX_OPTION_LENGTH}`;
-            }
-        });
-    });
-
+    // Удаление опции
     container.querySelectorAll('.remove-option-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const row = (e.target as HTMLElement).closest('.option-row') as HTMLElement | null;
@@ -177,6 +209,7 @@ function attachListeners(container: HTMLElement) {
         });
     });
 
+    // Добавление опции
     container.querySelectorAll('.add-option-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const qi = parseInt((e.target as HTMLElement).getAttribute('data-question-index') || '0');
@@ -195,6 +228,7 @@ function attachListeners(container: HTMLElement) {
         });
     });
 
+    // Удаление вопроса
     container.querySelectorAll('.remove-question-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const block = (e.target as HTMLElement).closest('.question-block') as HTMLElement | null;
@@ -220,21 +254,12 @@ function addQuestion() {
     renderQuestions();
 }
 
-document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    if (target.id === 'add-question-btn') {
-        addQuestion();
-    }
-});
-
-document.addEventListener('submit', async (e) => {
-    const form = (e.target as HTMLElement).closest('#edit-survey-form');
-    if (!form) return;
+async function handleSubmit(e: Event) {
     e.preventDefault();
 
     if (!currentSurveyId) return;
 
-    const titleInput = document.getElementById('survey-title') as HTMLInputElement;
+    const titleInput = document.getElementById('survey-title') as HTMLTextAreaElement;
     const title = titleInput?.value.trim() || '';
 
     if (!title) {
@@ -305,4 +330,21 @@ document.addEventListener('submit', async (e) => {
 
     showToast({ message: 'Опрос обновлён! 🎉', type: 'success' });
     navigateTo('/profile');
-});
+}
+
+async function handleDelete() {
+    if (!currentSurveyId) return;
+
+    const confirmed = confirm('Вы уверены, что хотите удалить опрос? Это действие нельзя отменить.');
+    if (!confirmed) return;
+
+    const result = await del(`/surveys/${currentSurveyId}`);
+
+    if (!result.success) {
+        showToast({ message: result.error, type: 'error' });
+        return;
+    }
+
+    showToast({ message: 'Опрос удалён', type: 'success' });
+    navigateTo('/profile');
+}

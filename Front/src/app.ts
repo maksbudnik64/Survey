@@ -6,6 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPage(window.location.pathname);
 })
 
-document.addEventListener('popstate', () => {
+window.addEventListener('popstate', () => {
     renderPage(window.location.pathname);
 })

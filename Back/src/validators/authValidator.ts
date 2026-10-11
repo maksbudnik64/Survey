@@ -1,68 +1,71 @@
-import type { Request, Response, NextFunction } from "express";
-import { errors, sendResponse } from "../utils/helpers.ts";
-import { MAX_EMAIL_LENGTH, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "../constants.ts";
+import type { Request, Response, NextFunction } from 'express';
+import { errors, sendResponse } from '../utils/helpers.ts';
+import { MAX_EMAIL_LENGTH, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from '../constants.ts';
 
+type Credentials = { email: string; password: string };
 
-export function validateRegistration(req: Request, res: Response, next: NextFunction) {
-    const { email, password } = req.body;
+function parseCredentials(req: Request, res: Response): Credentials | null {
+  const { email, password } = req.body;
 
-    if (!email || !password) {
-        return sendResponse(res, errors.validation("Email and password are required"));
-    }
+  if (!email || !password) {
+    sendResponse(res, errors.validation('Email and password are required'));
+    return null;
+  }
 
-    if (typeof email !== 'string' || typeof password !== 'string') {
-        return sendResponse(res, errors.validation("Email and password must be strings"));
-    }
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    sendResponse(res, errors.validation('Email and password must be strings'));
+    return null;
+  }
 
-    const clearEmail = email.trim().toLowerCase();
-    const clearPassword = password.trim();
+  const clearEmail = email.trim().toLowerCase();
+  const clearPassword = password.trim();
 
-    if (clearEmail.length === 0 || clearPassword.length === 0) {
-        return sendResponse(res, errors.validation("Email and password cannot be empty"));
-    }
+  if (clearEmail.length === 0 || clearPassword.length === 0) {
+    sendResponse(res, errors.validation('Email and password cannot be empty'));
+    return null;
+  }
 
-    if (clearEmail.length > MAX_EMAIL_LENGTH) {
-        return sendResponse(res, errors.validation(`Email must be up to ${MAX_EMAIL_LENGTH} chars`));
-    }
-
-    if (clearPassword.length < MIN_PASSWORD_LENGTH || clearPassword.length > MAX_PASSWORD_LENGTH) {
-        return sendResponse(res, errors.validation(`Password must be ${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} chars`));
-    }
-
-    if (!isValidEmail(clearEmail)) {
-        return sendResponse(res, errors.validation("Invalid email format"));
-    }
-
-    req.body.email = clearEmail;
-    req.body.password = clearPassword;
-
-    next();
+  return { email: clearEmail, password: clearPassword };
 }
 
-export function validateLogin(req: Request, res: Response, next: NextFunction) {
-    const { email, password } = req.body;
+export function validateRegistration(req: Request, res: Response, next: NextFunction): void {
+  const credentials = parseCredentials(req, res);
+  if (!credentials) return;
 
-    if (!email || !password) {
-        return sendResponse(res, errors.validation("Email and password are required"));
-    }
+  const { email, password } = credentials;
 
-    if (typeof email !== 'string' || typeof password !== 'string') {
-        return sendResponse(res, errors.validation("Email and password must be strings"));
-    }
+  if (email.length > MAX_EMAIL_LENGTH) {
+    sendResponse(res, errors.validation(`Email must be up to ${MAX_EMAIL_LENGTH} chars`));
+    return;
+  }
 
-    const clearEmail = email.trim().toLowerCase();
-    const clearPassword = password.trim();
+  if (password.length < MIN_PASSWORD_LENGTH || password.length > MAX_PASSWORD_LENGTH) {
+    sendResponse(
+      res,
+      errors.validation(`Password must be ${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} chars`)
+    );
+    return;
+  }
 
-    if (clearEmail.length === 0 || clearPassword.length === 0) {
-        return sendResponse(res, errors.validation("Email and password cannot be empty"));
-    }
+  if (!isValidEmail(email)) {
+    sendResponse(res, errors.validation('Invalid email format'));
+    return;
+  }
 
-    req.body.email = clearEmail;
-    req.body.password = clearPassword;
+  req.body.email = email;
+  req.body.password = password;
+  next();
+}
 
-    next();
+export function validateLogin(req: Request, res: Response, next: NextFunction): void {
+  const credentials = parseCredentials(req, res);
+  if (!credentials) return;
+
+  req.body.email = credentials.email;
+  req.body.password = credentials.password;
+  next();
 }
 
 function isValidEmail(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }

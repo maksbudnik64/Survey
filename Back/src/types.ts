@@ -1,80 +1,78 @@
 export interface User {
-    id: number,
-    email: string,
-    password_hash: string
+  id: number;
+  email: string;
+  password_hash: string;
 }
 
 export interface PublicUser {
-    id: number,
-    email: string
+  id: number;
+  email: string;
 }
 
-// ----- ВОПРОСЫ (Discriminated Union) -----
 export interface TextQuestion {
-    id: number;
-    type: 'text';
-    text: string;
+  id: number;
+  type: 'text';
+  text: string;
 }
 
 export interface ChoiceQuestion {
-    id: number;
-    type: 'single_choice' | 'multiple_choice';
-    text: string;
-    options: string[];
+  id: number;
+  type: 'single_choice' | 'multiple_choice';
+  text: string;
+  options: string[];
 }
 
 export type Question = TextQuestion | ChoiceQuestion;
 
 export interface Survey {
-    id: number;
-    title: string;
-    author_id: number;
-    answers_counter: number;
-    created_at: Date;
+  id: number;
+  title: string;
+  author_id: number;
+  answers_counter: number;
+  created_at: Date;
 }
 
 export interface SurveyWithQuestions extends Survey {
-    questions: Question[];
+  questions: Question[];
 }
 
 export interface Answer {
-    id: number;
-    answers: Record<string, string | string[]>;
+  id: number;
+  answers: Record<string, string | string[]>;
 }
 
-// ----- ОТВЕТЫ API -----
-
 export type ErrorCode =
-    | 'EMAIL_EXISTS'
-    | 'USER_NOT_FOUND'
-    | 'INVALID_CREDENTIALS'
-    | 'SURVEY_NOT_FOUND'
-    | 'FORBIDDEN'
-    | 'DB_ERROR'
-    | 'VALIDATION_ERROR'
-    | 'INTERNAL_ERROR'
-    | 'UNAUTHORIZED'
-    | 'TOKEN_EXPIRED'
-    | 'INVALID_TOKEN'
-    | 'ALREADY_RESPONDED';
+  | 'EMAIL_EXISTS'
+  | 'USER_NOT_FOUND'
+  | 'INVALID_CREDENTIALS'
+  | 'SURVEY_NOT_FOUND'
+  | 'FORBIDDEN'
+  | 'DB_ERROR'
+  | 'VALIDATION_ERROR'
+  | 'INTERNAL_ERROR'
+  | 'UNAUTHORIZED'
+  | 'TOKEN_EXPIRED'
+  | 'INVALID_TOKEN'
+  | 'ALREADY_RESPONDED'
+  | 'TOO_MANY_REQUESTS';
 
 export type ApiResponse<T> =
-    | { success: true; data: T | null}
-    | { success: false; error: string; code: ErrorCode };
+  | { success: true; data: T | null }
+  | { success: false; error: string; code: ErrorCode };
 
 export type AuthResponse = ApiResponse<{
-    token: string;
-    user: PublicUser;
+  token: string;
+  user: PublicUser;
 }>;
 
 export type SurveysResponse = ApiResponse<{
-    surveys: Survey[];
+  surveys: Survey[];
 }>;
 
 declare global {
-    namespace Express {
-        interface Request {
-            user?: PublicUser
-        }
+  namespace Express {
+    interface Request {
+      user?: PublicUser;
     }
+  }
 }

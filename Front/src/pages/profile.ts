@@ -1,4 +1,3 @@
-// src/pages/main.ts
 import { get } from "../api/client";
 import { renderHeader } from "../components/header";
 import { renderSurveyCard } from "../components/surveyCard";
@@ -21,15 +20,15 @@ export async function renderProfile(): Promise<string> {
     } else if (!result.data || result.data.length === 0) {
         content = `
             <p class="empty">Пока нет опросов. Создайте первый опрос!</p>
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <button id="create-survey-btn" class="primary">Создать опрос</button>
+            <div class="create-survey-wrapper">
+                <button id="create-survey-btn" class="primary">+ Создать опрос</button>
             </div>
         `;
     } else {
         const cards = result.data.map(survey => renderSurveyCard(survey)).join('');
         content = `
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
-                <button id="create-survey-btn" class="primary">Создать опрос</button>
+            <div class="create-survey-wrapper">
+                <button id="create-survey-btn" class="primary">+ Создать опрос</button>
             </div>
             <div class="grid">${cards}</div>
         `;
@@ -45,10 +44,7 @@ export async function renderProfile(): Promise<string> {
 }
 
 document.addEventListener('click', (e) => {
-    const target = e.target;
-    if(!(target instanceof HTMLElement)){
-        return;
-    }
+    const target = e.target as HTMLElement;
     if (target.id === 'create-survey-btn') {
         navigateTo('/survey/create');
     }

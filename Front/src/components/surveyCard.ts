@@ -1,7 +1,7 @@
-// src/components/surveyCard.ts
 import type { Survey } from "../types";
 import { navigateTo } from "../utils/router";
 import { showToast } from "./toast";
+import { pluralizeAnswers } from "../utils/pluralize";
 
 export function renderSurveyCard(survey: Survey): string {
     const url = `${window.location.origin}/survey/${survey.id}`;
@@ -11,11 +11,11 @@ export function renderSurveyCard(survey: Survey): string {
             <h3 class="survey-title">${survey.title}</h3>
             <div class="survey-meta">
                 <span class="survey-date">📅 ${formatDate(survey.created_at)}</span>
-                <span class="survey-answers">📊 ${survey.answers_counter || 0} ответов</span>
+                <span class="survey-answers">📊 ${pluralizeAnswers(survey.answers_counter)}</span>
             </div>
             <div class="survey-actions">
                 <button class="copy-btn" data-url="${url}">📋 Копировать ссылку</button>
-                <button class="survey-edit-btn" data-id="${survey.id}">Перейти →</button>
+                <button class="survey-go-btn" data-id="${survey.id}">Перейти →</button>
             </div>
         </div>
     `;
@@ -36,16 +36,17 @@ document.addEventListener('click', (e) => {
     if (target.classList.contains('copy-btn')) {
         const url = target.getAttribute('data-url');
         if (url) {
-            navigator.clipboard.writeText(url).then(() => {
-                showToast({
-                    message: 'Ссылка скопирована!',
-                    type: 'success',
+            navigator.clipboard.writeText(url)
+                .then(() => {
+                    showToast({ message: 'Ссылка скопирована! ✅', type: 'success' });
+                })
+                .catch(() => {
+                    showToast({ message: 'Не удалось скопировать', type: 'error' });
                 });
-            });
         }
     }
 
-    if (target.classList.contains('survey-edit-btn')) {
+    if (target.classList.contains('survey-go-btn')) {
         const id = target.getAttribute('data-id');
         if (id) {
             navigateTo(`/survey/${id}`);

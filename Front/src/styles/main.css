@@ -1161,3 +1161,14 @@ button.danger:hover {
     background: #fce4ec;
     border-color: #e8a8bd;
 }
+
+.create-survey-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.create-survey-wrapper button {
+    padding: 0.75rem 2rem;
+    font-size: 1.05rem;
+}

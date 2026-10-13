@@ -1,11 +1,9 @@
-import { renderPage } from './utils/router'
-
-console.log('🚀 Survey App frontend initialized!');
+import { renderPage } from './utils/router';
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderPage(window.location.pathname);
-})
+  renderPage(window.location.pathname);
+});
 
 window.addEventListener('popstate', () => {
-    renderPage(window.location.pathname);
-})
+  renderPage(window.location.pathname);
+});

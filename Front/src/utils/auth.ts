@@ -1,25 +1,33 @@
-import type { PublicUser } from '../types/index'
+import type { PublicUser } from '../types';
 
-export function saveAuth(token: string, user: PublicUser){
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+const TOKEN_KEY = 'token';
+const USER_KEY = 'user';
+
+export function saveAuth(token: string, user: PublicUser): void {
+  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-export function getToken(): string | null{
-    return localStorage.getItem('token')
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
 }
 
-export function getUser(): PublicUser | null{
-   const user = localStorage.getItem('user')
-   return user ? JSON.parse(user) : null;
+export function getUser(): PublicUser | null {
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as PublicUser;
+  } catch {
+    return null;
+  }
 }
 
-export function isAuthenticated(): boolean{
-    return !!getToken();
+export function isAuthenticated(): boolean {
+  return getToken() !== null;
 }
 
-export function logout(){
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-
+export function logout(): void {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
 }

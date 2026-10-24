@@ -106,7 +106,7 @@ export function attachEditorListeners(
       if (!question || !isChoiceQuestion(question)) return;
 
       if (question.options.length >= MAX_OPTIONS) {
-        showToast({ message: `Нельзя добавить больше ${MAX_OPTIONS} вариантов`, type: 'error' });
+        showToast({ message: `Cannot add more than ${MAX_OPTIONS} options`, type: 'error' });
         return;
       }
 
@@ -129,7 +129,7 @@ export function attachEditorListeners(
 
 export function addQuestion(questions: Question[], rerender: () => void): void {
   if (questions.length >= MAX_QUESTIONS) {
-    showToast({ message: `Нельзя добавить больше ${MAX_QUESTIONS} вопросов`, type: 'error' });
+    showToast({ message: `Cannot add more than ${MAX_QUESTIONS} questions`, type: 'error' });
     return;
   }
 
@@ -142,14 +142,14 @@ export function collectQuestionsFromForm(
 ): { ok: true; data: Question[] } | { ok: false; error: string } {
   const filled = questions.filter((q) => q.text.trim() !== '');
   if (filled.length === 0) {
-    return { ok: false, error: 'Добавьте хотя бы один вопрос' };
+    return { ok: false, error: 'Please add at least one question' };
   }
 
   const data: Question[] = [];
 
   for (const [index, q] of filled.entries()) {
     if (q.text.length > MAX_QUESTION_TEXT_LENGTH) {
-      return { ok: false, error: `Текст вопроса ${index + 1} слишком длинный` };
+      return { ok: false, error: `Question ${index + 1} text is too long` };
     }
 
     if (!isChoiceQuestion(q)) {
@@ -159,12 +159,12 @@ export function collectQuestionsFromForm(
 
     const options = q.options.map((o) => o.trim()).filter((o) => o !== '');
     if (options.length === 0) {
-      return { ok: false, error: `Вопрос "${q.text}" должен иметь хотя бы один вариант` };
+      return { ok: false, error: `Question "${q.text}" must have at least one option` };
     }
 
     for (const opt of options) {
       if (opt.length > MAX_OPTION_LENGTH) {
-        return { ok: false, error: `Вариант "${opt}" слишком длинный` };
+        return { ok: false, error: `Option "${opt}" is too long` };
       }
     }
 

@@ -20,19 +20,19 @@ export function renderSurveyEdit(): string {
     ${renderHeader()}
     <main class="main-content">
       <div class="page-header">
-        <h1>Редактирование опроса</h1>
+        <h1>Edit survey</h1>
         <div class="page-tabs">
-          <button class="tab active" data-tab="edit">✏️ Редактирование</button>
-          <button class="tab" id="stats-tab-btn">📊 Статистика</button>
+          <button class="tab active" data-tab="edit">✏️ Edit</button>
+          <button class="tab" id="stats-tab-btn">📊 Statistics</button>
         </div>
       </div>
       <form id="edit-survey-form" class="create-survey-form">
         <div class="form-group">
-          <label for="survey-title">Название опроса</label>
+          <label for="survey-title">Survey title</label>
           <div class="input-with-counter">
             <textarea
               id="survey-title"
-              placeholder="Название"
+              placeholder="Title"
               maxlength="${MAX_TITLE_LENGTH}"
               rows="1"
               required
@@ -41,15 +41,15 @@ export function renderSurveyEdit(): string {
           </div>
         </div>
         <div class="form-group">
-          <label>Вопросы</label>
+          <label>Questions</label>
           <div id="questions-container"></div>
-          <button type="button" id="add-question-btn" class="secondary">+ Добавить вопрос</button>
+          <button type="button" id="add-question-btn" class="secondary">+ Add question</button>
         </div>
         <button type="submit" class="primary" style="width: 100%; margin-top: 1rem;">
-          Сохранить изменения
+          Save changes
         </button>
         <button type="button" id="delete-survey-btn" class="danger" style="width: 100%; margin-top: 0.75rem;">
-          Удалить опрос
+          Delete survey
         </button>
       </form>
     </main>
@@ -108,11 +108,11 @@ async function handleSubmit(e: Event): Promise<void> {
     const title = titleInput?.value.trim() ?? '';
 
     if (!title) {
-      showToast({ message: 'Введите название опроса', type: 'error' });
+      showToast({ message: 'Please enter a survey title', type: 'error' });
       return;
     }
     if (title.length > MAX_TITLE_LENGTH) {
-      showToast({ message: `Название не может превышать ${MAX_TITLE_LENGTH} символов`, type: 'error' });
+      showToast({ message: `Title cannot exceed ${MAX_TITLE_LENGTH} characters`, type: 'error' });
       return;
     }
 
@@ -132,7 +132,7 @@ async function handleSubmit(e: Event): Promise<void> {
       return;
     }
 
-    showToast({ message: 'Опрос обновлён! 🎉', type: 'success' });
+    showToast({ message: 'Survey updated! 🎉', type: 'success' });
     navigateTo('/profile');
   });
 }
@@ -140,7 +140,7 @@ async function handleSubmit(e: Event): Promise<void> {
 async function handleDelete(): Promise<void> {
   if (!currentSurveyId) return;
 
-  const confirmed = confirm('Вы уверены, что хотите удалить опрос? Это действие нельзя отменить.');
+  const confirmed = confirm('Are you sure you want to delete this survey? This action cannot be undone.');
   if (!confirmed) return;
 
   const result = await del(`/surveys/${currentSurveyId}`);
@@ -150,6 +150,6 @@ async function handleDelete(): Promise<void> {
     return;
   }
 
-  showToast({ message: 'Опрос удалён', type: 'success' });
+  showToast({ message: 'Survey deleted', type: 'success' });
   navigateTo('/profile');
 }

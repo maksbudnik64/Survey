@@ -1,54 +1,54 @@
 # Survey App
 
-Веб-приложение для создания и прохождения опросов. Позволяет регистрироваться, создавать опросы с текстовыми и выборными вопросами, делиться ссылками, собирать и просматривать статистику ответов.
+A web application for creating and taking surveys. It allows users to register, create surveys with text and multiple-choice questions, share links, and collect and view response statistics.
 
 ---
 
-## Возможности
+## Features
 
-- **Аутентификация:** регистрация и вход по email + пароль с использованием JWT.
-- **Конструктор опросов:** создание вопросов трёх типов:
-  - текстовый ответ;
-  - одиночный выбор (radio);
-  - множественный выбор (checkbox).
-- **Управление:** редактирование и удаление собственных опросов.
-- **Участие:** прохождение опросов других пользователей.
-- **Аналитика:** просмотр статистики по каждому вопросу (количество и процент ответов).
-- **Безопасность:** защита от повторного прохождения и запрет автору отвечать на свой собственный опрос.
-
----
-
-## Технологический стек
-
-### Бэкенд
-
-- **Платформа:** Node.js (ESM), TypeScript
-- **Фреймворк:** Express 5
-- **База данных:** MySQL 8+ (совместимо с MariaDB 10.5+)
-- **Безопасность:** JWT (`jsonwebtoken`), `bcryptjs` для хэширования паролей
-- **Ограничение запросов:** `express-rate-limit` для защиты эндпоинтов `/auth`
-
-### Фронтенд
-
-- **Язык:** Vanilla TypeScript (SPA без использования тяжёлых фреймворков)
-- **Сборщик:** Vite
-- **Маршрутизация:** собственный роутер на базе `history.pushState` + `popstate`
+- **Authentication:** registration and login via email + password using JWT.
+- **Survey builder:** create questions of three types:
+  - text response;
+  - single choice (radio);
+  - multiple choice (checkbox).
+- **Management:** edit and delete your own surveys.
+- **Participation:** take surveys created by other users.
+- **Analytics:** view statistics for each question (count and percentage of responses).
+- **Security:** protection against repeated submissions and prevention of authors responding to their own surveys.
 
 ---
 
-## Структура проекта
+## Tech Stack
+
+### Backend
+
+- **Platform:** Node.js (ESM), TypeScript
+- **Framework:** Express 5
+- **Database:** MySQL 8+ (compatible with MariaDB 10.5+)
+- **Security:** JWT (`jsonwebtoken`), `bcryptjs` for password hashing
+- **Rate limiting:** `express-rate-limit` to protect `/auth` endpoints
+
+### Frontend
+
+- **Language:** Vanilla TypeScript (SPA without heavy frameworks)
+- **Bundler:** Vite
+- **Routing:** custom router based on `history.pushState` + `popstate`
+
+---
+
+## Project Structure
 
 ```text
 Survey/
 ├── Back/
 │   ├── src/
-│   │   ├── config/             # Подключение к БД
+│   │   ├── config/             # Database connection
 │   │   ├── middleware/         # Auth
-│   │   ├── repositories/       # SQL-запросы
-│   │   ├── routes/             # Express-роутеры
-│   │   ├── services/           # Бизнес-логика
+│   │   ├── repositories/       # SQL queries
+│   │   ├── routes/             # Express routers
+│   │   ├── services/           # Business logic
 │   │   ├── utils/              # Helpers, env, httpStatus
-│   │   ├── validators/         # Валидаторы
+│   │   ├── validators/         # Validators
 │   │   ├── constants.ts
 │   │   ├── index.ts
 │   │   └── types.ts
@@ -59,9 +59,9 @@ Survey/
 │
 ├── Front/
 │   ├── src/
-│   │   ├── api/                # HTTP-клиент
-│   │   ├── components/         # Header, toast, renderer'ы
-│   │   ├── pages/              # Страницы SPA
+│   │   ├── api/                # HTTP client
+│   │   ├── components/         # Header, toast, renderers
+│   │   ├── pages/              # SPA pages
 │   │   ├── utils/              # Auth, router, validators, html, form
 │   │   ├── styles/
 │   │   ├── types/index.ts
@@ -79,32 +79,32 @@ Survey/
 
 ---
 
-## Требования к окружению
+## Environment Requirements
 
-- **Node.js:** версия 20+
-- **npm:** версия 10+
-- **MySQL:** версия 8+ (или MariaDB 10.5+)
+- **Node.js:** version 20+
+- **npm:** version 10+
+- **MySQL:** version 8+ (or MariaDB 10.5+)
 
 ---
 
-## Установка и запуск
+## Installation and Running
 
-### 1. Клонирование репозитория
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/maksbudnik64/Survey
 cd Survey
 ```
 
-### 2. Подготовка базы данных
+### 2. Prepare the database
 
-Создайте базу данных и примените таблицы из файла `Back/sql/init.sql`:
+Create a database and apply the tables from the file `Back/sql/init.sql`:
 
 ```bash
 mysql -u root -p < Back/sql/init.sql
 ```
 
-### 3. Настройка и запуск бэкенда
+### 3. Configure and run the backend
 
 ```bash
 cd Back
@@ -112,25 +112,25 @@ npm install
 cp .env.example .env
 ```
 
-> **Важно:** заполните переменные файла `.env` согласно таблице в разделе «Переменные окружения». Сервер не запустится без сгенерированного `JWT_SECRET`.
+> **Important:** fill in the variables in the `.env` file according to the table in the "Environment Variables" section. The server will not start without a generated `JWT_SECRET`.
 
-Команда для генерации секретного ключа `JWT_SECRET`:
+Command to generate the secret key `JWT_SECRET`:
 
 ```bash
 openssl rand -base64 48
 ```
 
-Запуск в режиме разработки:
+Start in development mode:
 
 ```bash
 npm run dev
 ```
 
-Бэкенд будет доступен по адресу `http://localhost:5000`. Проверить статус можно через `GET http://localhost:5000/ping`.
+The backend will be available at `http://localhost:5000`. You can check the status via `GET http://localhost:5000/ping`.
 
-### 4. Настройка и запуск фронтенда
+### 4. Configure and run the frontend
 
-В новом окне терминала:
+In a new terminal window:
 
 ```bash
 cd Front
@@ -138,182 +138,182 @@ npm install
 cp .env.example .env
 ```
 
-В файле `.env` укажите URL бэкенда:
+In the `.env` file, specify the backend URL:
 
 ```env
 VITE_API_URL=http://localhost:5000
 ```
 
-Запуск:
+Start:
 
 ```bash
 npm run dev
 ```
 
-Приложение автоматически откроется по адресу `http://localhost:3000`.
+The application will automatically open at `http://localhost:3000`.
 
 ---
 
-## Переменные окружения
+## Environment Variables
 
-### Бэкенд (`Back/.env`)
+### Backend (`Back/.env`)
 
-| Переменная | Описание | Пример |
+| Variable | Description | Example |
 | :--- | :--- | :--- |
-| `PORT` | Порт сервера | `5000` |
-| `NODE_ENV` | Режим окружения (`development` / `production`) | `development` |
-| `FRONTEND_URL` | Разрешённые origin для CORS (через запятую) | `http://localhost:3000` |
-| `DB_HOST` | Хост базы данных MySQL | `localhost` |
-| `DB_PORT` | Порт базы данных MySQL | `3306` |
-| `DB_USER` | Пользователь БД | `root` |
-| `DB_PASSWORD` | Пароль пользователя БД | `—` |
-| `DB_NAME` | Имя базы данных | `surveydb` |
-| `DB_POOL_LIMIT` | Размер пула соединений | `10` |
-| `JWT_SECRET` | Секрет для подписи токенов | *сгенерированная строка* |
+| `PORT` | Server port | `5000` |
+| `NODE_ENV` | Environment mode (`development` / `production`) | `development` |
+| `FRONTEND_URL` | Allowed origins for CORS (comma-separated) | `http://localhost:3000` |
+| `DB_HOST` | MySQL database host | `localhost` |
+| `DB_PORT` | MySQL database port | `3306` |
+| `DB_USER` | Database user | `root` |
+| `DB_PASSWORD` | Database user password | `—` |
+| `DB_NAME` | Database name | `surveydb` |
+| `DB_POOL_LIMIT` | Connection pool size | `10` |
+| `JWT_SECRET` | Secret for signing tokens | *generated string* |
 
-### Фронтенд (`Front/.env`)
+### Frontend (`Front/.env`)
 
-| Переменная | Описание | Пример |
+| Variable | Description | Example |
 | :--- | :--- | :--- |
-| `VITE_API_URL` | Базовый URL бэкенд-сервера | `http://localhost:5000` |
+| `VITE_API_URL` | Base URL of the backend server | `http://localhost:5000` |
 
 ---
 
-## Доступные скрипты
+## Available Scripts
 
-### Бэкенд (`Back/`)
+### Backend (`Back/`)
 
-- `npm run dev` — запуск dev-сервера с hot reload (`tsx`).
-- `npm run build` — компиляция TypeScript-кода в директорию `dist/`.
-- `npm start` — запуск скомпилированного production-сервера.
+- `npm run dev` — start the dev server with hot reload (`tsx`).
+- `npm run build` — compile TypeScript code into the `dist/` directory.
+- `npm start` — start the compiled production server.
 
-### Фронтенд (`Front/`)
+### Frontend (`Front/`)
 
-- `npm run dev` — запуск локального сервера Vite (порт 3000).
-- `npm run build` — production-сборка проекта в папку `dist/`.
-- `npm run preview` — предпросмотр собранного бандла локально.
-- `npm run typecheck` — проверка типов TypeScript без сборки.
+- `npm run dev` — start the local Vite server (port 3000).
+- `npm run build` — production build of the project into the `dist/` folder.
+- `npm run preview` — preview the built bundle locally.
+- `npm run typecheck` — check TypeScript types without building.
 
 ---
 
 ## API
 
-Все ответы сервера возвращаются в едином JSON-формате:
+All server responses are returned in a unified JSON format:
 
 ```json
-// Успешный запрос
+// Successful request
 {
-  "success": true,
-  "data": null
+  \"success\": true,
+  \"data\": null
 }
 
-// Ошибка
+// Error
 {
-  "success": false,
-  "error": "Текст ошибки",
-  "code": "ERROR_CODE"
+  \"success\": false,
+  \"error\": \"Error text\",
+  \"code\": \"ERROR_CODE\"
 }
 ```
 
-### Аутентификация
+### Authentication
 
-- `POST /auth/registration` — регистрация нового пользователя. **Body:** `{ email, password }`.
-- `POST /auth/login` — авторизация. **Body:** `{ email, password }`.
+- `POST /auth/registration` — register a new user. **Body:** `{ email, password }`.
+- `POST /auth/login` — log in. **Body:** `{ email, password }`.
 
-> После успешного входа возвращается `{ token, user }`. Токен необходимо передавать в заголовке `Authorization: Bearer <token>`.
+> After a successful login, `{ token, user }` is returned. The token must be passed in the `Authorization: Bearer <token>` header.
 
-### Опросы
+### Surveys
 
-| Метод | Путь | Auth | Описание |
+| Method | Path | Auth | Description |
 | :--- | :--- | :---: | :--- |
-| **GET** | `/surveys` | — | Список всех доступных опросов |
-| **GET** | `/surveys/mySurveys` | ✅ | Список опросов текущего пользователя |
-| **GET** | `/surveys/:id` | — | Получить детальную информацию об опросе |
-| **GET** | `/surveys/:id/responded` | ✅ | Проверка, проходил ли пользователь этот опрос |
-| **GET** | `/surveys/responses/:id` | ✅ | Ответы на опрос (доступно только автору) |
-| **POST** | `/surveys` | ✅ | Создать новый опрос |
-| **POST** | `/surveys/:id/responses` | ✅ | Отправить ответы на опрос |
-| **PUT** | `/surveys/edit/:id` | ✅ | Обновить опрос (доступно только автору) |
-| **DELETE** | `/surveys/:id` | ✅ | Удалить опрос (доступно только автору) |
+| **GET** | `/surveys` | — | List of all available surveys |
+| **GET** | `/surveys/mySurveys` | ✅ | List of the current user's surveys |
+| **GET** | `/surveys/:id` | — | Get detailed information about a survey |
+| **GET** | `/surveys/:id/responded` | ✅ | Check whether the user has taken this survey |
+| **GET** | `/surveys/responses/:id` | ✅ | Survey responses (available only to the author) |
+| **POST** | `/surveys` | ✅ | Create a new survey |
+| **POST** | `/surveys/:id/responses` | ✅ | Submit responses to a survey |
+| **PUT** | `/surveys/edit/:id` | ✅ | Update a survey (available only to the author) |
+| **DELETE** | `/surveys/:id` | ✅ | Delete a survey (available only to the author) |
 
-### Служебные
+### Service
 
-- `GET /ping` — проверка работоспособности бэкенда (возвращает статус `200 OK`).
+- `GET /ping` — backend health check (returns status `200 OK`).
 
-### Коды ошибок
+### Error Codes
 
-| Код | HTTP | Описание |
+| Code | HTTP | Description |
 | :--- | :---: | :--- |
-| `EMAIL_EXISTS` | 409 | Email уже зарегистрирован |
-| `USER_NOT_FOUND` | 404 | Пользователь не найден |
-| `INVALID_CREDENTIALS` | 401 | Неверный email или пароль |
-| `SURVEY_NOT_FOUND` | 404 | Опрос не найден |
-| `FORBIDDEN` | 403 | Нет прав на действие |
-| `DB_ERROR` | 500 | Ошибка базы данных |
-| `VALIDATION_ERROR` | 400 | Данные не прошли валидацию |
-| `INTERNAL_ERROR` | 500 | Внутренняя ошибка сервера |
-| `UNAUTHORIZED` | 401 | Требуется авторизация |
-| `TOKEN_EXPIRED` | 401 | Токен истёк |
-| `INVALID_TOKEN` | 403 | Недействительный токен |
-| `ALREADY_RESPONDED` | 409 | Ответ на опрос уже отправлен |
-| `TOO_MANY_REQUESTS` | 429 | Превышен лимит запросов |
+| `EMAIL_EXISTS` | 409 | Email is already registered |
+| `USER_NOT_FOUND` | 404 | User not found |
+| `INVALID_CREDENTIALS` | 401 | Invalid email or password |
+| `SURVEY_NOT_FOUND` | 404 | Survey not found |
+| `FORBIDDEN` | 403 | No permission for the action |
+| `DB_ERROR` | 500 | Database error |
+| `VALIDATION_ERROR` | 400 | Data failed validation |
+| `INTERNAL_ERROR` | 500 | Internal server error |
+| `UNAUTHORIZED` | 401 | Authorization required |
+| `TOKEN_EXPIRED` | 401 | Token has expired |
+| `INVALID_TOKEN` | 403 | Invalid token |
+| `ALREADY_RESPONDED` | 409 | A response to the survey has already been submitted |
+| `TOO_MANY_REQUESTS` | 429 | Request limit exceeded |
 
 ---
 
-## Системные лимиты
+## System Limits
 
-- **Email:** до 255 символов.
-- **Пароль:** от 6 до 100 символов.
-- **Название опроса:** до 255 символов.
-- **Текст вопроса:** до 500 символов.
-- **Вариант ответа:** до 255 символов.
-- **Вопросов в одном опросе:** до 20.
-- **Вариантов ответа на один вопрос:** до 10.
-- **Текстовый ответ пользователя:** до 1000 символов.
-- **Размер JSON с ответами:** до 100 КБ.
-- **Rate limit:** не более 20 неудачных запросов к `/auth/*` за 15 минут с одного IP.
-
----
-
-## Безопасность
-
-- Пароли надёжно хэшируются через `bcryptjs` (10 раундов).
-- Сессии защищены JWT, срок действия токена — 7 дней.
-- Все SQL-запросы строго параметризованы для защиты от SQL-инъекций.
-- Данные пользователей, проходящие через фронтенд, экранируются перед выводом в `innerHTML`.
-- На бэкенде настроен CORS, ограничивающий доступ списком из `FRONTEND_URL`.
-- *Примечание:* токен авторизации хранится в `localStorage` — осознанный компромисс в рамках учебного проекта.
+- **Email:** up to 255 characters.
+- **Password:** 6 to 100 characters.
+- **Survey title:** up to 255 characters.
+- **Question text:** up to 500 characters.
+- **Answer option:** up to 255 characters.
+- **Questions per survey:** up to 20.
+- **Answer options per question:** up to 10.
+- **User text response:** up to 1000 characters.
+- **Size of response JSON:** up to 100 KB.
+- **Rate limit:** no more than 20 failed requests to `/auth/*` per 15 minutes from a single IP.
 
 ---
 
-## Известные ограничения
+## Security
 
-- **Нет пагинации** в списках опросов и ответов — при большом количестве данных запросы будут тяжёлыми.
-- **Редактирование опроса удаляет все накопленные ответы** — статистика сбрасывается полностью.
-- **Нет восстановления пароля** и подтверждения email.
-- **JWT-токен живёт 7 дней**, хранится в `localStorage` и не отзывается досрочно.
-- **Rate limit стоит только на `/auth/*`** — создание опросов и отправка ответов не защищены от спама.
-- **Нет миграций БД** — изменения схемы применяются вручную.
-- **Нет автоматических тестов.**
-
----
-
-## Что можно улучшить
-
-- **Автоматические тесты** — покрыть unit-тестами утилиты (`escapeHtml`, `pluralize`, `validators`), а integration-тестами — ключевые эндпоинты API.
-- **Docker** — `Dockerfile` для бэкенда и фронтенда + `docker-compose.yml` с MySQL, чтобы запуск проекта был одной командой.
-- **UX-улучшения** — скелетоны при загрузке страниц, кастомная модалка вместо `confirm()` при удалении, визуальный индикатор во время отправки форм.
-- **Пагинация** — постраничный вывод опросов и ответов с параметрами `?limit=&offset=`.
-- **Миграции БД** — подключить `knex`, `dbmate` или `prisma migrate`, чтобы изменения схемы не применялись вручную.
-- **Refresh-токены** — короткоживущий access-токен + долгоживущий refresh с возможностью отзыва.
-- **Экспорт ответов** — выгрузка результатов опроса в CSV или XLSX.
-- **Поиск и сортировка опросов** — фильтр по названию, сортировка по дате и количеству ответов.
-- **Подтверждение email** — отправка письма со ссылкой при регистрации.
-- **Логирование и мониторинг** — структурированные логи (`pino`), health-check, метрики.
-- **CI/CD** — GitHub Actions для проверки типов, тестов и сборки на каждый push.
+- Passwords are securely hashed using `bcryptjs` (10 rounds).
+- Sessions are protected with JWT; the token lifetime is 7 days.
+- All SQL queries are strictly parameterized to protect against SQL injection.
+- User data passing through the frontend is escaped before being output to `innerHTML`.
+- CORS is configured on the backend, restricting access to the list in `FRONTEND_URL`.
+- *Note:* the authorization token is stored in `localStorage` — a deliberate compromise within the scope of an educational project.
 
 ---
 
-## Лицензия
+## Known Limitations
 
-Проект распространяется под лицензией [ISC](LICENSE).
+- **No pagination** in survey and response lists — with a large amount of data, queries will be heavy.
+- **Editing a survey deletes all accumulated responses** — statistics are fully reset.
+- **No password recovery** or email verification.
+- **The JWT token lives for 7 days**, is stored in `localStorage`, and cannot be revoked early.
+- **Rate limiting is only applied to `/auth/*`** — creating surveys and submitting responses are not protected against spam.
+- **No database migrations** — schema changes are applied manually.
+- **No automated tests.**
+
+---
+
+## Possible Improvements
+
+- **Automated tests** — cover utilities (`escapeHtml`, `pluralize`, `validators`) with unit tests, and key API endpoints with integration tests.
+- **Docker** — a `Dockerfile` for the backend and frontend + `docker-compose.yml` with MySQL, so the project can be started with a single command.
+- **UX improvements** — skeletons during page loading, a custom modal instead of `confirm()` when deleting, a visual indicator while forms are being submitted.
+- **Pagination** — paginated output of surveys and responses with `?limit=&offset=` parameters.
+- **Database migrations** — set up `knex`, `dbmate`, or `prisma migrate` so schema changes are not applied manually.
+- **Refresh tokens** — a short-lived access token + a long-lived refresh token with revocation capability.
+- **Response export** — export survey results to CSV or XLSX.
+- **Survey search and sorting** — filter by title, sort by date and number of responses.
+- **Email verification** — send an email with a link upon registration.
+- **Logging and monitoring** — structured logs (`pino`), health check, metrics.
+- **CI/CD** — GitHub Actions for type checking, tests, and builds on every push.
+
+---
+
+## License
+
+This project is distributed under the [ISC](LICENSE) license.

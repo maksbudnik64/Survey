@@ -1,22 +1,22 @@
 import type { Survey } from '../types';
 import { navigateTo } from '../utils/router';
 import { showToast } from './toast';
-import { pluralizeAnswers } from '../utils/pluralize';
 import { escapeHtml } from '../utils/html';
 
 export function renderSurveyCard(survey: Survey): string {
   const url = `${window.location.origin}/survey/${survey.id}`;
+  const answersLabel = `${survey.answers_counter} ${survey.answers_counter === 1 ? 'answer' : 'answers'}`;
 
   return `
     <div class="survey-card card" data-survey-id="${survey.id}">
       <h3 class="survey-title">${escapeHtml(survey.title)}</h3>
       <div class="survey-meta">
         <span class="survey-date">📅 ${formatDate(survey.created_at)}</span>
-        <span class="survey-answers">📊 ${pluralizeAnswers(survey.answers_counter)}</span>
+        <span class="survey-answers">📊 ${answersLabel}</span>
       </div>
       <div class="survey-actions">
-        <button class="copy-btn" data-url="${escapeHtml(url)}">📋 Копировать ссылку</button>
-        <button class="survey-go-btn" data-id="${survey.id}">Перейти →</button>
+        <button class="copy-btn" data-url="${escapeHtml(url)}">📋 Copy link</button>
+        <button class="survey-go-btn" data-id="${survey.id}">Open →</button>
       </div>
     </div>
   `;
@@ -26,7 +26,7 @@ function formatDate(dateString: string): string {
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
 
-  return date.toLocaleDateString('ru-RU', {
+  return date.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -43,8 +43,8 @@ document.addEventListener('click', (e) => {
 
     navigator.clipboard
       .writeText(url)
-      .then(() => showToast({ message: 'Ссылка скопирована! ✅', type: 'success' }))
-      .catch(() => showToast({ message: 'Не удалось скопировать', type: 'error' }));
+      .then(() => showToast({ message: 'Link copied! ✅', type: 'success' }))
+      .catch(() => showToast({ message: 'Failed to copy', type: 'error' }));
     return;
   }
 

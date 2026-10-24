@@ -11,12 +11,12 @@ export async function renderMain(): Promise<string> {
   let content: string;
   if (!result.success) {
     showToast({
-      message: result.error || 'Ошибка загрузки опросов',
+      message: result.error || 'Failed to load surveys',
       type: 'error',
     });
-    content = '<p class="error">Не удалось загрузить опросы</p>';
+    content = '<p class="error">Could not load surveys</p>';
   } else if (!result.data || result.data.length === 0) {
-    content = '<p class="empty">Пока нет опросов. Будьте первым!</p>';
+    content = '<p class="empty">No surveys yet. Be the first!</p>';
   } else {
     const cards = result.data.map(renderSurveyCard).join('');
     content = `<div class="grid">${cards}</div>`;
@@ -25,7 +25,7 @@ export async function renderMain(): Promise<string> {
   return `
     ${header}
     <main class="main-content">
-      <h1>Все опросы</h1>
+      <h1>All surveys</h1>
       ${content}
     </main>
   `;

@@ -15,7 +15,7 @@ export class SurveyTakerRenderer extends QuestionRenderer {
         <div class="form-group">
           <textarea
             class="answer-input"${idAttr}
-            placeholder="Ваш ответ"
+            placeholder="Your answer"
             maxlength="${MAX_TEXT_ANSWER_LENGTH}"
             rows="3"
           ></textarea>

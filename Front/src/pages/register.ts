@@ -15,7 +15,7 @@ export function renderRegister(): string {
   return `
     <div class="auth-page">
       <div class="auth-form">
-        <span class="form-title">Регистрация</span>
+        <span class="form-title">Register</span>
         <form id="register-form">
           <input
             type="email"
@@ -27,7 +27,7 @@ export function renderRegister(): string {
           <input
             type="password"
             name="password"
-            placeholder="Пароль"
+            placeholder="Password"
             minlength="${MIN_PASSWORD_LENGTH}"
             maxlength="${MAX_PASSWORD_LENGTH}"
             required
@@ -35,14 +35,14 @@ export function renderRegister(): string {
           <input
             type="password"
             name="password-repeat"
-            placeholder="Повторите пароль"
+            placeholder="Repeat password"
             minlength="${MIN_PASSWORD_LENGTH}"
             maxlength="${MAX_PASSWORD_LENGTH}"
             required
           >
-          <button type="submit">Зарегистрироваться</button>
+          <button type="submit">Register</button>
         </form>
-        <span>Уже есть аккаунт? <a href="/login" data-link>Войти</a></span>
+        <span>Already have an account? <a href="/login" data-link>Log in</a></span>
       </div>
     </div>
   `;
@@ -73,7 +73,7 @@ document.addEventListener('submit', async (e) => {
     }
 
     if (password !== passwordRepeat) {
-      showToast({ message: 'Пароли не совпадают', type: 'error' });
+      showToast({ message: 'Passwords do not match', type: 'error' });
       return;
     }
 
@@ -88,12 +88,12 @@ document.addEventListener('submit', async (e) => {
     }
 
     if (!result.data) {
-      showToast({ message: 'Ошибка регистрации', type: 'error' });
+      showToast({ message: 'Registration failed', type: 'error' });
       return;
     }
 
     saveAuth(result.data.token, result.data.user);
-    showToast({ message: 'Регистрация прошла успешно!', type: 'success' });
+    showToast({ message: 'Registration successful!', type: 'success' });
     navigateTo('/profile');
   });
 });

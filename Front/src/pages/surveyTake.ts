@@ -10,11 +10,11 @@ export function renderSurveyTake(): string {
   return `
     ${renderHeader()}
     <main class="main-content">
-      <h1 id="survey-title">Загрузка...</h1>
+      <h1 id="survey-title">Loading...</h1>
       <form id="survey-form">
         <div id="questions-container"></div>
         <button type="submit" class="primary" style="width: 100%; margin-top: 1rem;">
-          Отправить ответы
+          Submit answers
         </button>
       </form>
     </main>
@@ -26,7 +26,7 @@ export async function initSurveyTakePage(survey: SurveyWithQuestions): Promise<v
 
   const respondedResult = await get<boolean>(`/surveys/${surveyId}/responded`);
   if (respondedResult.success && respondedResult.data === true) {
-    showToast({ message: 'Вы уже проходили этот опрос', type: 'info' });
+    showToast({ message: 'You have already taken this survey', type: 'info' });
     navigateTo('/');
     return;
   }
@@ -56,7 +56,7 @@ async function handleSubmit(e: Event, survey: SurveyWithQuestions): Promise<void
     for (const [index, q] of survey.questions.entries()) {
       if (q.id === undefined) continue;
 
-      const label = `Вопрос ${index + 1}`;
+      const label = `Question ${index + 1}`;
 
       if (q.type === 'text') {
         const input = document.querySelector<HTMLTextAreaElement>(
@@ -65,7 +65,7 @@ async function handleSubmit(e: Event, survey: SurveyWithQuestions): Promise<void
         const value = input?.value.trim() ?? '';
 
         if (!value) {
-          showToast({ message: `${label}: введите ответ`, type: 'error' });
+          showToast({ message: `${label}: please enter an answer`, type: 'error' });
           return;
         }
         answers[q.id] = value;
@@ -78,7 +78,7 @@ async function handleSubmit(e: Event, survey: SurveyWithQuestions): Promise<void
         );
 
         if (!checked) {
-          showToast({ message: `${label}: выберите вариант ответа`, type: 'error' });
+          showToast({ message: `${label}: please select an option`, type: 'error' });
           return;
         }
         answers[q.id] = checked.value;
@@ -90,7 +90,7 @@ async function handleSubmit(e: Event, survey: SurveyWithQuestions): Promise<void
       );
 
       if (checked.length === 0) {
-        showToast({ message: `${label}: выберите хотя бы один вариант`, type: 'error' });
+        showToast({ message: `${label}: please select at least one option`, type: 'error' });
         return;
       }
       answers[q.id] = Array.from(checked).map((c) => c.value);
@@ -103,7 +103,7 @@ async function handleSubmit(e: Event, survey: SurveyWithQuestions): Promise<void
       return;
     }
 
-    showToast({ message: 'Спасибо! Ответы отправлены 🎉', type: 'success' });
+    showToast({ message: 'Thank you! Your answers have been submitted 🎉', type: 'success' });
     navigateTo('/');
   });
 }

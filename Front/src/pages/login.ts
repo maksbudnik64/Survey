@@ -11,7 +11,7 @@ export function renderLogin(): string {
   return `
     <div class="auth-page">
       <div class="auth-form">
-        <span class="form-title">Вход</span>
+        <span class="form-title">Log in</span>
         <form id="login-form">
           <input
             type="email"
@@ -23,14 +23,14 @@ export function renderLogin(): string {
           <input
             type="password"
             name="password"
-            placeholder="Пароль"
+            placeholder="Password"
             minlength="${MIN_PASSWORD_LENGTH}"
             maxlength="${MAX_PASSWORD_LENGTH}"
             required
           >
-          <button type="submit">Войти</button>
+          <button type="submit">Log in</button>
         </form>
-        <span>Нет аккаунта? <a href="/register" data-link>Зарегистрироваться</a></span>
+        <span>Don't have an account? <a href="/register" data-link>Register</a></span>
       </div>
     </div>
   `;
@@ -54,7 +54,7 @@ document.addEventListener('submit', async (e) => {
     }
 
     if (!password) {
-      showToast({ message: 'Введите пароль', type: 'error' });
+      showToast({ message: 'Please enter a password', type: 'error' });
       return;
     }
 
@@ -69,12 +69,12 @@ document.addEventListener('submit', async (e) => {
     }
 
     if (!result.data) {
-      showToast({ message: 'Ошибка входа', type: 'error' });
+      showToast({ message: 'Login failed', type: 'error' });
       return;
     }
 
     saveAuth(result.data.token, result.data.user);
-    showToast({ message: 'Добро пожаловать!', type: 'success' });
+    showToast({ message: 'Welcome!', type: 'success' });
     navigateTo('/profile');
   });
 });

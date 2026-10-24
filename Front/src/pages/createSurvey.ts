@@ -18,14 +18,14 @@ export function renderCreateSurvey(): string {
   return `
     ${renderHeader()}
     <main class="main-content">
-      <h1>Создание опроса</h1>
+      <h1>Create survey</h1>
       <form id="create-survey-form" class="create-survey-form">
         <div class="form-group">
-          <label for="survey-title">Название опроса</label>
+          <label for="survey-title">Survey title</label>
           <div class="input-with-counter">
             <textarea
               id="survey-title"
-              placeholder="Введите название"
+              placeholder="Enter a title"
               maxlength="${MAX_TITLE_LENGTH}"
               rows="1"
               required
@@ -34,12 +34,12 @@ export function renderCreateSurvey(): string {
           </div>
         </div>
         <div class="form-group">
-          <label>Вопросы</label>
+          <label>Questions</label>
           <div id="questions-container"></div>
-          <button type="button" id="add-question-btn" class="secondary">+ Добавить вопрос</button>
+          <button type="button" id="add-question-btn" class="secondary">+ Add question</button>
         </div>
         <button type="submit" class="primary" style="width: 100%; margin-top: 1rem;">
-          Создать опрос
+          Create survey
         </button>
       </form>
     </main>
@@ -86,11 +86,11 @@ async function handleSubmit(e: Event): Promise<void> {
     const title = titleInput?.value.trim() ?? '';
 
     if (!title) {
-      showToast({ message: 'Введите название опроса', type: 'error' });
+      showToast({ message: 'Please enter a survey title', type: 'error' });
       return;
     }
     if (title.length > MAX_TITLE_LENGTH) {
-      showToast({ message: `Название не может превышать ${MAX_TITLE_LENGTH} символов`, type: 'error' });
+      showToast({ message: `Title cannot exceed ${MAX_TITLE_LENGTH} characters`, type: 'error' });
       return;
     }
 
@@ -111,11 +111,11 @@ async function handleSubmit(e: Event): Promise<void> {
     }
 
     if (!result.data) {
-      showToast({ message: 'Опрос создан, но не удалось получить ID', type: 'error' });
+      showToast({ message: 'Survey created, but failed to get its ID', type: 'error' });
       return;
     }
 
-    showToast({ message: 'Опрос создан! 🎉', type: 'success' });
+    showToast({ message: 'Survey created! 🎉', type: 'success' });
     questions = [];
     navigateTo('/profile');
   });

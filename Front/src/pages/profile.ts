@@ -7,7 +7,7 @@ import type { Survey } from '../types';
 
 const CREATE_BUTTON = `
   <div class="create-survey-wrapper">
-    <button id="create-survey-btn" class="primary">+ Создать опрос</button>
+    <button id="create-survey-btn" class="primary">+ Create survey</button>
   </div>
 `;
 
@@ -18,13 +18,13 @@ export async function renderProfile(): Promise<string> {
   let content: string;
   if (!result.success) {
     showToast({
-      message: result.error || 'Ошибка загрузки опросов',
+      message: result.error || 'Failed to load surveys',
       type: 'error',
     });
-    content = '<p class="error">Не удалось загрузить опросы</p>';
+    content = '<p class="error">Could not load surveys</p>';
   } else if (!result.data || result.data.length === 0) {
     content = `
-      <p class="empty">Пока нет опросов. Создайте первый опрос!</p>
+      <p class="empty">No surveys yet. Create your first survey!</p>
       ${CREATE_BUTTON}
     `;
   } else {
@@ -38,7 +38,7 @@ export async function renderProfile(): Promise<string> {
   return `
     ${header}
     <main class="main-content">
-      <h1>Мои опросы</h1>
+      <h1>My surveys</h1>
       ${content}
     </main>
   `;

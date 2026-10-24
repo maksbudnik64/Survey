@@ -26,7 +26,7 @@ export abstract class QuestionRenderer {
   protected renderHeader(_question: Question, index: number): string {
     return `
       <div class="question-header">
-        <span class="question-number">Вопрос ${index + 1}</span>
+        <span class="question-number">Question ${index + 1}</span>
       </div>
     `;
   }

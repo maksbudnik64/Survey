@@ -23,7 +23,7 @@ export class SurveyStatsRenderer extends QuestionRenderer {
   protected renderHeader(question: Question, index: number): string {
     return `
       <div class="question-header">
-        <span class="question-number">Вопрос ${index + 1}</span>
+        <span class="question-number">Question ${index + 1}</span>
       </div>
       <p class="question-text-display">${escapeHtml(question.text)}</p>
     `;
@@ -32,7 +32,7 @@ export class SurveyStatsRenderer extends QuestionRenderer {
   protected renderBody(_question: Question, _index: number): string {
     return `
       <div class="stats-total">
-        Всего ответов: <strong>${this.totalResponses}</strong>
+        Total responses: <strong>${this.totalResponses}</strong>
       </div>
     `;
   }
@@ -40,7 +40,7 @@ export class SurveyStatsRenderer extends QuestionRenderer {
   protected renderFooter(question: Question, _index: number): string {
     const stats = this.stats.find((s) => s.questionId === question.id);
     if (!stats || stats.options.length === 0) {
-      return '<p>Нет данных</p>';
+      return '<p>No data</p>';
     }
 
     const rows = stats.options

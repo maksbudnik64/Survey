@@ -7,7 +7,7 @@ export class SurveyEditorRenderer extends QuestionRenderer {
   protected renderHeader(question: Question, index: number): string {
     return `
       <div class="question-header">
-        <span class="question-number">Вопрос ${index + 1}</span>
+        <span class="question-number">Question ${index + 1}</span>
         <button type="button" class="remove-question-btn" data-index="${index}">✕</button>
       </div>
     `;
@@ -22,7 +22,7 @@ export class SurveyEditorRenderer extends QuestionRenderer {
           <textarea
             class="question-text"
             data-index="${index}"
-            placeholder="Текст вопроса"
+            placeholder="Question text"
             maxlength="${MAX_QUESTION_TEXT_LENGTH}"
             rows="2"
           >${text}</textarea>
@@ -31,9 +31,9 @@ export class SurveyEditorRenderer extends QuestionRenderer {
       </div>
       <div class="form-group">
         <select class="question-type" data-index="${index}">
-          <option value="text" ${question.type === 'text' ? 'selected' : ''}>Текстовый ответ</option>
-          <option value="single_choice" ${question.type === 'single_choice' ? 'selected' : ''}>Одиночный выбор</option>
-          <option value="multiple_choice" ${question.type === 'multiple_choice' ? 'selected' : ''}>Множественный выбор</option>
+          <option value="text" ${question.type === 'text' ? 'selected' : ''}>Text answer</option>
+          <option value="single_choice" ${question.type === 'single_choice' ? 'selected' : ''}>Single choice</option>
+          <option value="multiple_choice" ${question.type === 'multiple_choice' ? 'selected' : ''}>Multiple choice</option>
         </select>
       </div>
     `;
@@ -48,12 +48,12 @@ export class SurveyEditorRenderer extends QuestionRenderer {
 
     return `
       <div class="form-group options-group">
-        <label>Варианты ответов</label>
+        <label>Answer options</label>
         <div class="options-list">
           ${options}
         </div>
         <button type="button" class="add-option-btn secondary" data-question-index="${index}">
-          + Добавить вариант
+          + Add option
         </button>
       </div>
     `;

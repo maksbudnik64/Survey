@@ -9,12 +9,12 @@ export function renderHeader(): string {
 
   const authBlock = isAuth
     ? `
-      <span class="user-email">👤 ${escapeHtml(user?.email ?? 'Пользователь')}</span>
-      <button id="logout-btn" class="logout-btn">Выйти</button>
+      <span class="user-email">👤 ${escapeHtml(user?.email ?? 'User')}</span>
+      <button id="logout-btn" class="logout-btn">Log out</button>
     `
     : `
-      <a href="/login" data-link>Войти</a>
-      <a href="/register" data-link>Регистрация</a>
+      <a href="/login" data-link>Log in</a>
+      <a href="/register" data-link>Register</a>
     `;
 
   return `
@@ -25,8 +25,8 @@ export function renderHeader(): string {
         </a>
       </div>
       <nav class="header-nav">
-        <a href="/" data-link>Все опросы</a>
-        ${isAuth ? '<a href="/profile" data-link>Мои опросы</a>' : ''}
+        <a href="/" data-link>All surveys</a>
+        ${isAuth ? '<a href="/profile" data-link>My surveys</a>' : ''}
       </nav>
       <div class="header-right">
         ${authBlock}
@@ -43,6 +43,6 @@ document.addEventListener('click', (e) => {
 
   e.preventDefault();
   logout();
-  showToast({ message: 'Вы вышли из аккаунта', type: 'info' });
+  showToast({ message: 'You have logged out', type: 'info' });
   navigateTo('/login');
 });

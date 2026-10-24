@@ -4,7 +4,7 @@ import { MAX_EMAIL_LENGTH, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from '../c
 
 type Credentials = { email: string; password: string };
 
-function parseCredentials(req: Request, res: Response): Credentials | null {
+export function parseCredentials(req: Request, res: Response): Credentials | null {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -66,6 +66,6 @@ export function validateLogin(req: Request, res: Response, next: NextFunction): 
   next();
 }
 
-function isValidEmail(email: string): boolean {
+export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }

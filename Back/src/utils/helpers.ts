@@ -20,7 +20,7 @@ export const errors = {
   tokenExpired: () => fail('Token expired', 'TOKEN_EXPIRED'),
   invalidToken: () => fail('Invalid token', 'INVALID_TOKEN'),
   dbError: (msg = 'Database error') => fail(msg, 'DB_ERROR'),
-  validation: (msg: string) => fail(msg, 'VALIDATION_ERROR'),
+  validation: (msg = 'Validation error') => fail(msg, 'VALIDATION_ERROR'),
   internal: (msg = 'Internal error') => fail(msg, 'INTERNAL_ERROR'),
   alreadyResponded: () => fail('You have already responded', 'ALREADY_RESPONDED'),
   tooManyRequests: (msg = 'Too many requests') => fail(msg, 'TOO_MANY_REQUESTS'),

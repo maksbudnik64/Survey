@@ -33,7 +33,7 @@ export function validateSurvey(req: Request, res: Response, next: NextFunction):
     return;
   }
 
-  if (questions === undefined) {
+  if (questions === undefined || questions === null) {
     sendResponse(res, errors.validation('Questions are required'));
     return;
   }
@@ -65,7 +65,7 @@ export function validateSurvey(req: Request, res: Response, next: NextFunction):
   next();
 }
 
-function validateQuestion(q: unknown, index: number): string | null {
+export function validateQuestion(q: unknown, index: number): string | null {
   const prefix = `Question ${index + 1}`;
 
   if (!q || typeof q !== 'object') {
@@ -73,6 +73,10 @@ function validateQuestion(q: unknown, index: number): string | null {
   }
 
   const question = q as Record<string, unknown>;
+
+  if (question.text === undefined || question.text === null) {
+    return `${prefix}: text is required`;
+  }
 
   if (typeof question.text !== 'string') {
     return `${prefix}: text must be a string`;
@@ -86,12 +90,23 @@ function validateQuestion(q: unknown, index: number): string | null {
     return `${prefix}: text must be up to ${MAX_QUESTION_TEXT_LENGTH} chars`;
   }
 
+  if (question.type === undefined || question.type === null) {
+    return `${prefix}: type is required`;
+  }
+
+  if (typeof question.type !== 'string') {
+    return `${prefix}: type must be a string`;
+  }
+
   if (question.type === 'text') {
     question.text = clearText;
     return null;
   }
 
   if (question.type === 'single_choice' || question.type === 'multiple_choice') {
+    if (!question.options) {
+      return `${prefix}: options are required`;
+    }
     if (!Array.isArray(question.options)) {
       return `${prefix}: options must be an array`;
     }
@@ -103,6 +118,8 @@ function validateQuestion(q: unknown, index: number): string | null {
     }
 
     const cleanedOptions: string[] = [];
+    const seen = new Set<string>();
+
     for (const [oi, opt] of question.options.entries()) {
       if (typeof opt !== 'string') {
         return `${prefix}: option ${oi + 1} must be a string`;
@@ -114,6 +131,10 @@ function validateQuestion(q: unknown, index: number): string | null {
       if (clearOpt.length > MAX_OPTION_LENGTH) {
         return `${prefix}: option ${oi + 1} must be up to ${MAX_OPTION_LENGTH} chars`;
       }
+      if (seen.has(clearOpt)) {
+        return `${prefix}: option ${oi + 1} is duplicated`;
+      }
+      seen.add(clearOpt);
       cleanedOptions.push(clearOpt);
     }
 
@@ -122,5 +143,5 @@ function validateQuestion(q: unknown, index: number): string | null {
     return null;
   }
 
-  return `${prefix}: invalid type "${String(question.type)}"`;
+  return `${prefix}: invalid type ${JSON.stringify(question.type)}`;
 }

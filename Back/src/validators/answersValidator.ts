@@ -11,9 +11,10 @@ import {
 export function validateAnswers(req: Request, res: Response, next: NextFunction): void {
   const jsonString = JSON.stringify(req.body);
   if (Buffer.byteLength(jsonString, 'utf8') > MAX_ANSWERS_JSON_SIZE) {
-    sendResponse(res, errors.validation(
-      `Answers payload too large (max ${MAX_ANSWERS_JSON_SIZE} bytes)`
-    ));
+    sendResponse(
+      res,
+      errors.validation(`Answers payload too large (max ${MAX_ANSWERS_JSON_SIZE} bytes)`)
+    );
     return;
   }
 
@@ -55,12 +56,23 @@ export function validateAnswers(req: Request, res: Response, next: NextFunction)
     }
 
     if (typeof value === 'string') {
-      if (value.length > MAX_TEXT_ANSWER_LENGTH) {
-        sendResponse(res, errors.validation(
-          `Answer for question ${key} is too long (max ${MAX_TEXT_ANSWER_LENGTH})`
-        ));
+      const trimmed = value.trim();
+
+      if (trimmed.length === 0) {
+        sendResponse(res, errors.validation(`Answer for question ${key} cannot be empty`));
         return;
       }
+      if (trimmed.length > MAX_TEXT_ANSWER_LENGTH) {
+        sendResponse(
+          res,
+          errors.validation(
+            `Answer for question ${key} is too long (max ${MAX_TEXT_ANSWER_LENGTH})`
+          )
+        );
+        return;
+      }
+
+      answers[key] = trimmed;
       continue;
     }
 
@@ -73,16 +85,32 @@ export function validateAnswers(req: Request, res: Response, next: NextFunction)
         sendResponse(res, errors.validation(`Too many options selected for question ${key}`));
         return;
       }
+
+      const trimmed: string[] = [];
       for (const item of value) {
         if (typeof item !== 'string') {
-          sendResponse(res, errors.validation(`Answer items for question ${key} must be strings`));
+          sendResponse(
+            res,
+            errors.validation(`Answer items for question ${key} must be strings`)
+          );
           return;
         }
-        if (item.length > MAX_OPTION_LENGTH) {
+        const t = item.trim();
+        if (t.length === 0) {
+          sendResponse(
+            res,
+            errors.validation(`Answer items for question ${key} cannot be empty`)
+          );
+          return;
+        }
+        if (t.length > MAX_OPTION_LENGTH) {
           sendResponse(res, errors.validation(`Answer item for question ${key} is too long`));
           return;
         }
+        trimmed.push(t);
       }
+
+      answers[key] = trimmed;
       continue;
     }
 

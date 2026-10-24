@@ -5,8 +5,8 @@ export const MAX_PASSWORD_LENGTH = 100;
 export const MAX_TITLE_LENGTH = 255;
 export const MAX_QUESTION_TEXT_LENGTH = 500;
 export const MAX_OPTION_LENGTH = 255;
-export const MAX_QUESTIONS = 50;
-export const MAX_OPTIONS = 20;
+export const MAX_QUESTIONS = 20;
+export const MAX_OPTIONS = 10;
 
 export const MAX_ANSWERS_JSON_SIZE = 100 * 1024;
 export const MAX_TEXT_ANSWER_LENGTH = 1000;

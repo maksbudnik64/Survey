@@ -201,17 +201,17 @@ The application will automatically open at `http://localhost:3000`.
 All server responses are returned in a unified JSON format:
 
 ```json
-// Successful request
+Successful request
 {
-  \"success\": true,
-  \"data\": null
+  "success": true,
+  "data": null
 }
 
-// Error
+Error
 {
-  \"success\": false,
-  \"error\": \"Error text\",
-  \"code\": \"ERROR_CODE\"
+  "success": false,
+  "error": "Error text",
+  "code": "ERROR_CODE"
 }
 ```
 

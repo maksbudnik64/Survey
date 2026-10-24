@@ -40,7 +40,7 @@ app.use('/auth', authLimiter, authRouter);
 app.use('/surveys', surveyRouter);
 
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Ошибка:', err.message);
+  console.error('Error:', err.message);
   console.error(err.stack);
 
   const status = err.status || 500;
@@ -51,12 +51,12 @@ app.use((err: any, req: express.Request, res: express.Response, _next: express.N
 });
 
 app.listen(PORT, async () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
+  console.log(`Server started on port ${PORT}`);
 
   const dbConnected = await testConnection();
   if (!dbConnected) {
-    console.warn('Сервер работает, но БД недоступна');
+    console.warn('Server is running, but the database is unavailable');
   } else {
-    console.log('База данных подключена');
+    console.log('Database connected');
   }
 });

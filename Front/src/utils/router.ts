@@ -31,7 +31,7 @@ export async function renderPage(path: string): Promise<void> {
     await renderRoute(app, path);
   } catch (error) {
     console.error('Failed to render page:', error);
-    showToast({ message: 'Ошибка при загрузке страницы', type: 'error' });
+    showToast({ message: 'Error loading page', type: 'error' });
   }
 }
 
@@ -52,7 +52,7 @@ async function renderRoute(app: HTMLElement, path: string): Promise<void> {
     if (!survey) return;
 
     if (!isAuthor(survey)) {
-      showToast({ message: 'У вас нет доступа к редактированию', type: 'error' });
+      showToast({ message: 'You do not have permission to edit this survey', type: 'error' });
       navigateTo(`/survey/${surveyId}`, true);
       return;
     }
@@ -76,7 +76,7 @@ async function renderRoute(app: HTMLElement, path: string): Promise<void> {
     if (!survey) return;
 
     if (!isAuthor(survey)) {
-      showToast({ message: 'У вас нет доступа к статистике', type: 'error' });
+      showToast({ message: 'You do not have permission to view statistics', type: 'error' });
       navigateTo(`/survey/${surveyId}`, true);
       return;
     }
@@ -92,7 +92,7 @@ async function renderRoute(app: HTMLElement, path: string): Promise<void> {
     const surveyId = Number(takeId);
 
     if (!isAuth) {
-      showToast({ message: 'Войдите, чтобы пройти опрос', type: 'info' });
+      showToast({ message: 'Log in to take this survey', type: 'info' });
       navigateTo('/login', true);
       return;
     }
@@ -145,7 +145,7 @@ async function renderRoute(app: HTMLElement, path: string): Promise<void> {
       return;
 
     default:
-      app.innerHTML = '<h1>404</h1><p>Страница не найдена</p>';
+      app.innerHTML = '<h1>404</h1><p>Page not found</p>';
   }
 }
 
@@ -159,7 +159,7 @@ async function loadSurvey(surveyId: number): Promise<SurveyWithQuestions | null>
   }
 
   if (!result.data) {
-    showToast({ message: 'Опрос не найден', type: 'error' });
+    showToast({ message: 'Survey not found', type: 'error' });
     navigateTo('/', true);
     return null;
   }

@@ -32,7 +32,7 @@ export function showToast({
   toast.innerHTML = `
     <span class="toast-icon">${ICONS[type]}</span>
     <span class="toast-message">${escapeHtml(message)}</span>
-    <button class="toast-close" aria-label="Закрыть">&times;</button>
+    <button class="toast-close" aria-label="Close">&times;</button>
   `;
 
   container.appendChild(toast);

@@ -14,11 +14,11 @@ export async function testConnection(): Promise<boolean> {
   try {
     const connection = await pool.getConnection();
     connection.release();
-    console.log('MySQL успешно подключена');
+    console.log('MySQL connected successfully');
     return true;
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error('Ошибка подключения к MySQL:', message);
+    console.error('MySQL connection error:', message);
     return false;
   }
 }

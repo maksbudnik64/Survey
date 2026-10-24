@@ -6,7 +6,7 @@ A web application for creating and taking surveys. It allows users to register, 
 
 ## Features
 
-- **Authentication:** registration and login via email + password using JWT.
+- **Authentication:** registration and login with email + password using JWT.
 - **Survey builder:** create questions of three types:
   - text response;
   - single choice (radio);
@@ -203,15 +203,15 @@ All server responses are returned in a unified JSON format:
 ```json
 // Successful request
 {
-  \"success\": true,
-  \"data\": null
+  "success": true,
+  "data": null
 }
 
 // Error
 {
-  \"success\": false,
-  \"error\": \"Error text\",
-  \"code\": \"ERROR_CODE\"
+  "success": false,
+  "error": "Error text",
+  "code": "ERROR_CODE"
 }
 ```
 
